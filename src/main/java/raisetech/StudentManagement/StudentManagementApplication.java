@@ -3,18 +3,39 @@ package raisetech.StudentManagement;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
 public class StudentManagementApplication {
 
+  private String name = "Enami Kouji";
+  private String age = "37";
+
   public static void main(String[] args) {
     SpringApplication.run(StudentManagementApplication.class, args);
   }
 
-  @GetMapping("/hello")
-  public String hello() {
-    return "Hello, World!";
+  @GetMapping("/name")
+  public String getName() {
+    return name;
+  }
+
+  @GetMapping("/info")
+  public String getinfo() {
+    return name + " " + age + "歳";
+  }
+
+
+  @PostMapping("/info")
+  public void setInfo(String name, String age) {
+    this.name = name;
+    this.age = age;
+  }
+
+  @PostMapping("/updateName")
+  public void updateSetName(String name) {
+    this.name = name;
   }
 }
