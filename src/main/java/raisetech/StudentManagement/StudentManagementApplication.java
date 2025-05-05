@@ -2,6 +2,7 @@ package raisetech.StudentManagement;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class StudentManagementApplication {
 
+  @Autowired
+  private StudentRepository repository;
+
   private String name = "Enami Kouji";
   private String age = "37";
   private Map<String, String> studentMap = new HashMap<>();
@@ -21,10 +25,6 @@ public class StudentManagementApplication {
     SpringApplication.run(StudentManagementApplication.class, args);
   }
 
-  @GetMapping("/name")
-  public String getName() {
-    return name;
-  }
 
   @GetMapping("/info")
   public String getinfo() {
@@ -32,10 +32,9 @@ public class StudentManagementApplication {
   }
 
 
-  @PostMapping("/info")
-  public void setInfo(String name, String age) {
-    this.name = name;
-    this.age = age;
+  @PostMapping("/student")
+  public void registerStudent(String name, int age) {
+    repository.registerStudent(name, age);
   }
 
   @PostMapping("/updateName")
@@ -51,5 +50,11 @@ public class StudentManagementApplication {
   @PostMapping("/map")
   public void setStudentMap(String name, String age) {
     studentMap.put(name, age);
+  }
+
+  @GetMapping("/studentInfo")
+  public String getStudentInfo() {
+    Student student = repository.searchByName("SawanoRyoichi");
+    return student.getName() + " " + student.getAge() + "歳";
   }
 }
