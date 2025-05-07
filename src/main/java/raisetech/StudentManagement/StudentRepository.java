@@ -20,4 +20,5 @@ public interface StudentRepository {
 
   @Delete("DELETE FROM student WHERE name=#{name}")
   void deleteStudent(String name);
+
 }
