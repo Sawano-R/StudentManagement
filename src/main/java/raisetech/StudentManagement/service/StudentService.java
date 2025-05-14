@@ -24,7 +24,7 @@ public class StudentService {
     return studentList;
   }
 
-  public List<StudentCourses> searchStudentJavacoursesList() {
+  public List<StudentCourses> searchStudentJavaCoursesList() {
     List<StudentCourses> javaList = repository.searchCourses();
     return javaList.stream().filter(n -> n.getCourse().equals("java")).toList();
   }
