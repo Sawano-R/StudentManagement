@@ -36,7 +36,7 @@ public class StudentController {
   }
 
 
-  @GetMapping("/studentcourses")
+  @GetMapping("/studentCourses")
   public List<StudentCourses> getStudentCoursesList() {
     return service.searchStudentJavaCoursesList();
   }
@@ -52,8 +52,24 @@ public class StudentController {
     if (result.hasErrors()) {
       return "registerStudent";
     }
+    service.registerStudent(studentDetail);
     System.out.println(
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
-    return "redirect:/studentList";
+    return "registerResult";
+  }
+
+  @GetMapping("/newCourse")
+  public String newCourse(Model model) {
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "registerCourse";
+  }
+
+  @PostMapping("/registerCourse")
+  public String registerCourse(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "registerCourse";
+    }
+    service.registerCourse(studentDetail);
+    return "registerResult";
   }
 }

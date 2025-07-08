@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class Student {
 
-  private String id;
+  private Integer id;
   private String name;
   private String nameKana;
   private String nickname;
