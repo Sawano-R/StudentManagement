@@ -1,5 +1,6 @@
 package raisetech.StudentManagement.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -43,7 +44,9 @@ public class StudentController {
 
   @GetMapping("/newStudent")
   public String newStudent(Model model) {
-    model.addAttribute("studentDetail", new StudentDetail());
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentDetail);
     return "registerStudent";
   }
 
@@ -72,4 +75,12 @@ public class StudentController {
     service.registerCourse(studentDetail);
     return "registerResult";
   }
+
+  @GetMapping("/updateStudent")
+  public String updateStudent(Model model) {
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "preUpdateStudent";
+  }
+
+  //@PostMapping("/")
 }
