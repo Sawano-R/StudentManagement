@@ -58,4 +58,33 @@ public class StudentService {
     }
   }
 
+  public StudentDetail matchName(StudentDetail studentDetail) {
+    List<Student> students = repository.searchName();
+    StudentDetail studentDetail1MatchName = new StudentDetail();
+    for (Student student : students) {
+      if (student.getName().equals(studentDetail.getStudent().getName())) {
+        studentDetail1MatchName.setStudent(student);
+        break;
+      }
+    }
+    return studentDetail1MatchName;
+  }
+
+  public StudentDetail matchID(Integer id) {
+    List<Student> students = repository.searchName();
+    StudentDetail studentDetail1MatchID = new StudentDetail();
+    for (Student student : students) {
+      if (id.equals(student.getId())) {
+        studentDetail1MatchID.setStudent(student);
+        break;
+      }
+    }
+    return studentDetail1MatchID;
+  }
+
+  @Transactional
+  public void updateStudent(StudentDetail studentDetail) {
+    Student student = studentDetail.getStudent();
+    repository.updateStudent(student);
+  }
 }

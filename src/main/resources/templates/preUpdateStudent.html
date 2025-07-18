@@ -6,7 +6,7 @@
 </head>
 <body>
 <h1>受講生情報更新</h1>
-<form th:action="@{/registerStudent}" th:object="${studentDetail}" method="post">
+<form th:action="@{/updateStudentHere}" th:object="${studentDetail}" method="post">
   <div>
     <label for="name">名前（必須）:</label>
     <input type="text" id="name" th:field="*{student.name}" required/>
