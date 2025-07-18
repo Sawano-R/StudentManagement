@@ -91,15 +91,13 @@ public class StudentController {
       return "preupdateStudent";
     }
     StudentDetail studentMatchName = service.matchName(studentDetail);
-    studentMatchName.setStudentCourses(Arrays.asList(new StudentCourses()));
     model.addAttribute("studentDetail", studentMatchName);
     return "updateStudent";
   }
 
-  @GetMapping("/student/detail/{id}")
+  @GetMapping("/student/{id}")
   public String updateStudentHyper(@PathVariable Integer id, Model model) {
     StudentDetail studentMatchID = service.matchID(id);
-    studentMatchID.setStudentCourses(Arrays.asList(new StudentCourses()));
     model.addAttribute("studentDetail", studentMatchID);
     return "updateStudent";
   }

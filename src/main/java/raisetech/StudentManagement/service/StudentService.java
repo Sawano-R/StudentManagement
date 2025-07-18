@@ -22,11 +22,11 @@ public class StudentService {
   }
 
   public List<Student> searchStudentList() {
-    return repository.searchName();
+    return repository.search();
   }
 
   public List<StudentCourses> searchStudentJavaCoursesList() {
-    return repository.searchCourses();
+    return repository.searchCoursesList();
   }
 
   @Transactional
@@ -43,7 +43,7 @@ public class StudentService {
 
   @Transactional
   public void registerCourse(StudentDetail studentDetail) {
-    List<Student> students = repository.searchName();
+    List<Student> students = repository.search();
     for (Student student : students) {
       if (student.getName().equals(studentDetail.getStudent().getName())) {
         StudentCourses inputCourse = new StudentCourses();
@@ -59,32 +59,27 @@ public class StudentService {
   }
 
   public StudentDetail matchName(StudentDetail studentDetail) {
-    List<Student> students = repository.searchName();
     StudentDetail studentDetail1MatchName = new StudentDetail();
-    for (Student student : students) {
-      if (student.getName().equals(studentDetail.getStudent().getName())) {
-        studentDetail1MatchName.setStudent(student);
-        break;
-      }
-    }
+    studentDetail1MatchName.setStudent(
+        repository.searchStudentName(studentDetail.getStudent().getName()));
+    studentDetail1MatchName.setStudentCourses(
+        repository.searchCourses(studentDetail1MatchName.getStudent().getId()));
     return studentDetail1MatchName;
   }
 
   public StudentDetail matchID(Integer id) {
-    List<Student> students = repository.searchName();
     StudentDetail studentDetail1MatchID = new StudentDetail();
-    for (Student student : students) {
-      if (id.equals(student.getId())) {
-        studentDetail1MatchID.setStudent(student);
-        break;
-      }
-    }
+    studentDetail1MatchID.setStudent(repository.searchStudentID(id));
+    studentDetail1MatchID.setStudentCourses(repository.searchCourses(id));
     return studentDetail1MatchID;
   }
 
   @Transactional
   public void updateStudent(StudentDetail studentDetail) {
-    Student student = studentDetail.getStudent();
-    repository.updateStudent(student);
+    repository.updateStudent(studentDetail.getStudent());
+    List<StudentCourses> updateCourses = studentDetail.getStudentCourses();
+    for (StudentCourses studentCourse : updateCourses) {
+      repository.updateCourse(studentCourse);
+    }
   }
 }
