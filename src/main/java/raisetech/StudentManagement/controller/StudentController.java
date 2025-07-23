@@ -1,5 +1,6 @@
 package raisetech.StudentManagement.controller;
 
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -7,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
@@ -43,7 +45,10 @@ public class StudentController {
 
   @GetMapping("/newStudent")
   public String newStudent(Model model) {
-    model.addAttribute("studentDetail", new StudentDetail());
+    StudentDetail studentDetail = new StudentDetail();
+    studentDetail.setStudent(new Student());
+    studentDetail.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentDetail);
     return "registerStudent";
   }
 
@@ -70,6 +75,41 @@ public class StudentController {
       return "registerCourse";
     }
     service.registerCourse(studentDetail);
+    return "registerResult";
+  }
+
+  @GetMapping("/updateStudent")
+  public String updateStudent(Model model) {
+    model.addAttribute("studentDetail", new StudentDetail());
+    return "preUpdateStudent";
+  }
+
+  @PostMapping("/updateStudentHere")
+  public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result,
+      Model model) {
+    if (result.hasErrors()) {
+      return "preupdateStudent";
+    }
+    StudentDetail studentMatchName = service.matchName(studentDetail);
+    studentMatchName.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentMatchName);
+    return "updateStudent";
+  }
+
+  @GetMapping("/student/detail/{id}")
+  public String updateStudentHyper(@PathVariable Integer id, Model model) {
+    StudentDetail studentMatchID = service.matchID(id);
+    studentMatchID.setStudentCourses(Arrays.asList(new StudentCourses()));
+    model.addAttribute("studentDetail", studentMatchID);
+    return "updateStudent";
+  }
+
+  @PostMapping("/updateResult")
+  public String updateStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
+    if (result.hasErrors()) {
+      return "preupdateStudent";
+    }
+    service.updateStudent(studentDetail);
     return "registerResult";
   }
 }
