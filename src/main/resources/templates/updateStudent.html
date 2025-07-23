@@ -46,6 +46,13 @@
     <input type="text"
            th:id="'studentCourses_' + ${stat.index} + '_course'"
            th:field="*{studentCourses[__${stat.index}__].course}"/>
+    コースをキャンセルしますか？<input type="checkbox"
+                                      th:id="'studentCourses_' + ${stat.index} + '_deleted'"
+                                      th:field="*{studentCourses[__${stat.index}__].deleted}"/>
+  </div>
+  <div>
+    <label for="deleted">登録をキャンセルしますか？</label>
+    <input type="checkbox" id="deleted" th:field="*{student.deleted}">
   </div>
   <div>
     <button type="submit">更新</button>

@@ -37,10 +37,13 @@ public class StudentController {
     return "studentList";
   }
 
+  @GetMapping("/studentListAll")
+  public String getStudentListAll(Model model) {
+    List<Student> students = service.searchStudentList();
+    List<StudentCourses> studentCourses = service.searchStudentJavaCoursesList();
 
-  @GetMapping("/studentCourses")
-  public List<StudentCourses> getStudentCoursesList() {
-    return service.searchStudentJavaCoursesList();
+    model.addAttribute("studentList", converter.convertStudentDetails(students, studentCourses));
+    return "studentListAll";
   }
 
   @GetMapping("/newStudent")
@@ -60,7 +63,7 @@ public class StudentController {
     service.registerStudent(studentDetail);
     System.out.println(
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
-    return "registerResult";
+    return "redirect:/studentList";
   }
 
   @GetMapping("/newCourse")
@@ -75,7 +78,7 @@ public class StudentController {
       return "registerCourse";
     }
     service.registerCourse(studentDetail);
-    return "registerResult";
+    return "redirect:/studentList";
   }
 
   @GetMapping("/updateStudent")
@@ -108,6 +111,6 @@ public class StudentController {
       return "preupdateStudent";
     }
     service.updateStudent(studentDetail);
-    return "registerResult";
+    return "redirect:/studentList";
   }
 }
