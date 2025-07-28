@@ -13,5 +13,6 @@ public class StudentCourses {
   private String course;
   private Date startDay;
   private Date endDay;
+  private boolean deleted;
 
 }

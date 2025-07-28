@@ -22,8 +22,7 @@
   </tr>
   </thead>
   <tbody>
-  <tr th:each="studentDetail : ${studentList}"
-      th:if="${!studentDetail.student.deleted}">
+  <tr th:each="studentDetail : ${studentList}">
     <td th:text="${studentDetail.student.id}">1</td>
     <td>
       <a th:href="@{'/student/' + ${studentDetail.student.id}}"
@@ -38,9 +37,7 @@
     <td th:text="${studentDetail.student.remark}">特になし</td>
     <td>
       <ul>
-        <li th:each="course : ${studentDetail.studentCourses}"
-            th:if="${!course.deleted}"
-            th:text="${course.course}">コース
+        <li th:each="course : ${studentDetail.studentCourses}" th:text="${course.course}">コース
         </li>
       </ul>
     </td>
