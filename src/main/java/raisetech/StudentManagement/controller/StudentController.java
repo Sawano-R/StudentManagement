@@ -57,14 +57,11 @@ public class StudentController {
   }
 
   @PostMapping("/registerStudent")
-  public String registerStudent(@ModelAttribute StudentDetail studentDetail, BindingResult result) {
-    if (result.hasErrors()) {
-      return "registerStudent";
-    }
+  public ResponseEntity<String> registerStudent(@RequestBody StudentDetail studentDetail) {
     service.registerStudent(studentDetail);
     System.out.println(
         studentDetail.getStudent().getName() + "さんが新規受講生として登録されました。");
-    return "redirect:/studentList";
+    return ResponseEntity.ok("登録処理が成功しました。");
   }
 
   @GetMapping("/newCourse")
