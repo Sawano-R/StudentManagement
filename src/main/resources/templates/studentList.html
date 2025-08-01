@@ -38,7 +38,7 @@
     <td th:text="${studentDetail.student.remark}">特になし</td>
     <td>
       <ul>
-        <li th:each="course : ${studentDetail.studentCourses}"
+        <li th:each="course : ${studentDetail.studentCours}"
             th:if="${!course.deleted}"
             th:text="${course.course}">コース
         </li>
