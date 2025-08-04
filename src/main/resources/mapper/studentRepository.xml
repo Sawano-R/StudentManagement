@@ -8,8 +8,50 @@
     SELECT * FROM students
   </select>
 
-  <!-- 受講生の単一検索-->
+  <!-- 受講生の単一検索(ID)-->
   <select id="searchStudentID" resultType="raisetech.StudentManagement.data.Student">
     SELECT * FROM students WHERE id = #{id}
   </select>
+
+  <!-- 受講生の単一検索(名前)-->
+  <select id="searchStudentName" resultType="raisetech.StudentManagement.data.Student">
+    SELECT * FROM students WHERE name = #{name}
+  </select>
+
+  <!-- 受講生コースの全件検索-->
+  <select id="searchCourseList" resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses
+  </select>
+
+  <!-- 受講生コースの単一検索(受講生ID)-->
+  <select id="searchCourseID" resultType="raisetech.StudentManagement.data.StudentCourse">
+    SELECT * FROM students_courses WHERE id_students = #{idStudents}
+  </select>
+
+  <!-- 受講生の登録-->
+  <insert id="registerStudent" parameterType="raisetech.StudentManagement.data.Student"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO students (name, name_kana, nickname, mail, resion, age, gender, remark, deleted)
+    values(#{name}, #{nameKana}, #{nickname}, #{mail}, #{resion}, #{age}, #{gender}, #{remark},
+    false)
+  </insert>
+
+  <!-- 受講生コ－スの登録-->
+  <insert id="registerCourse" parameterType="raisetech.StudentManagement.data.StudentCourse"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT students_courses(id_students,course,start_day,end_day)
+    values(#{idStudents}, #{course}, #{startDay}, #{endDay})
+  </insert>
+
+  <!-- 受講生の登録-->
+  <update id="updateStudent" parameterType="raisetech.StudentManagement.data.Student">
+    UPDATE students SET name=#{name}, name_kana=#{nameKana}, nickname=#{nickname}, mail=#{mail},
+    resion=#{resion},
+    age=#{age}, gender=#{gender}, remark=#{remark}, deleted=#{deleted} WHERE id=#{id}
+  </update>
+
+  <!-- 受講生コースの登録-->
+  <update id="updateCourse" parameterType="raisetech.StudentManagement.data.StudentCourse">
+    UPDATE students_courses SET course = #{course}, deleted=#{deleted} WHERE id = #{id}
+  </update>
 </mapper>
