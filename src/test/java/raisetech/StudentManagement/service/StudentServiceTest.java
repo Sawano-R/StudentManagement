@@ -1,6 +1,8 @@
 package raisetech.StudentManagement.service;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,6 +21,7 @@ import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
+import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -58,7 +61,8 @@ class StudentServiceTest {
   }
 
   @Test
-  void 受講生詳細の名前一致での検索機能_入力した受講生の名前とそこから呼び出したIDに対応したリポジトリの処理が適切に呼び出せていること() {
+  void 受講生詳細の名前一致での検索機能_入力した受講生の名前とそこから呼び出したIDに対応したリポジトリの処理が適切に呼び出せていること()
+      throws TestException {
     StudentDetail inputStudentDetail = new StudentDetail();
     Student inputStudent = new Student();
     inputStudent.setName("nameTest");
@@ -80,12 +84,22 @@ class StudentServiceTest {
   }
 
   @Test
-  void 受講生詳細のID一致での検索機能_入力した受講生IDに対応したリポジトリの処理が適切に呼び出せていること() {
+  void 受講生詳細の名前一致での検索機能_名前が存在しないとき例外に投げること() {
     StudentDetail inputStudentDetail = new StudentDetail();
     Student inputStudent = new Student();
-    inputStudent.setId(1);
+    inputStudent.setName("nameTest");
     inputStudentDetail.setStudent(inputStudent);
 
+    when(repository.searchStudentName("nameTest")).thenReturn(null);
+
+    TestException ex = assertThrows(TestException.class, () -> sut.matchName(inputStudentDetail));
+    Assertions.assertEquals("存在しない名前です。", ex.getMessage());
+    verify(repository, times(0)).searchCourseID(anyInt());
+  }
+
+  @Test
+  void 受講生詳細のID一致での検索機能_入力した受講生IDに対応したリポジトリの処理が適切に呼び出せていること()
+      throws TestException {
     Student student = new Student();
 
     List<StudentCourse> studentCourse = new ArrayList<>();
@@ -93,11 +107,20 @@ class StudentServiceTest {
     when(repository.searchStudentID(1)).thenReturn(student);
     when(repository.searchCourseID(1)).thenReturn(studentCourse);
 
-    StudentDetail actual = sut.matchName(inputStudentDetail);
+    StudentDetail actual = sut.matchID(1);
 
     verify(repository).searchStudentID(1);
     verify(repository).searchCourseID(1);
     Assertions.assertEquals(new StudentDetail(student, studentCourse), actual);
+  }
+
+  @Test
+  void 受講生詳細のID一致での検索機能_入力した受講生IDが存在しないときに例外を投げること() {
+    when(repository.searchStudentID(1)).thenReturn(null);
+
+    TestException ex = assertThrows(TestException.class, () -> sut.matchID(1));
+    Assertions.assertEquals("存在しないIDです。", ex.getMessage());
+    verify(repository, times(0)).searchCourseID(anyInt());
   }
 
   @Test
