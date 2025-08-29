@@ -1,5 +1,9 @@
 package raisetech.StudentManagement.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import raisetech.StudentManagement.domain.StudentDetail;
-import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.service.StudentService;
 
 /**
@@ -29,16 +32,11 @@ public class StudentController {
     this.service = service;
   }
 
-  /**
-   * 受講生一覧検索です。 全件検索を行います。
-   *
-   * @return 受講生詳細一覧(全件)
-   */
+
+  @Operation(summary = "一覧検索", description = "受講生詳細を一覧表示します")
   @GetMapping("/studentList")
-  public List<StudentDetail> getStudentList() throws TestException {
-    throw new TestException(
-        "現在このAPIは利用できません。URLは「studentList」ではなく「students」をご利用ください。");
-    //return service.searchStudentDetailList();
+  public List<StudentDetail> getStudentList() {
+    return service.searchStudentDetailList();
   }
 
   /**
@@ -47,6 +45,9 @@ public class StudentController {
    * @param studentDetail
    * @return　登録した受講生詳細情報(ID付き)
    */
+  @Operation(summary = "受講生登録", description = "受講生詳細を登録します",
+      responses = {@ApiResponse(responseCode = "200", description = "受講生登録完了"),
+          @ApiResponse(responseCode = "400", description = "バリデーションエラー発生", content = @Content())})
   @PostMapping("/registerStudent")
   public ResponseEntity<StudentDetail> registerStudent(
       @RequestBody @Valid StudentDetail studentDetail) {
@@ -54,17 +55,15 @@ public class StudentController {
     return ResponseEntity.ok(responseStudentDetail);
   }
 
+  @Operation(summary = "受講生検索", description = "{id}に一致する受講生詳細を表示します", parameters = @Parameter(name = "id", description = "受講生ID", required = true),
+      responses = {@ApiResponse(responseCode = "200"),
+          @ApiResponse(responseCode = "400", description = "バリデーションエラー", content = @Content())})
   @GetMapping("/student/{id}")
   public StudentDetail updateStudentHyper(@PathVariable Integer id) {
     return service.matchID(id);
   }
 
-  /**
-   * 受講生詳細の更新を行う。また、論理削除もここで行う。
-   *
-   * @param studentDetail
-   * @return
-   */
+  @Operation(summary = "受講生更新", description = "受講生詳細を更新します")
   @PutMapping("/updateResult")
   public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
     service.updateStudent(studentDetail);

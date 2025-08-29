@@ -10,6 +10,7 @@ import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
+import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.repository.StudentRepository;
 
 /**
@@ -45,8 +46,11 @@ public class StudentService {
    * @param studentDetail 　受講生の名前
    * @return　受講生(名前一致)
    */
-  public StudentDetail matchName(StudentDetail studentDetail) {
+  public StudentDetail matchName(StudentDetail studentDetail) throws TestException {
     Student student = repository.searchStudentName(studentDetail.getStudent().getName());
+    if (student == null) {
+      throw new TestException("存在しない名前です。");
+    }
     List<StudentCourse> studentCourse = repository.searchCourseID(student.getId());
     return new StudentDetail(student, studentCourse);
   }
@@ -57,8 +61,11 @@ public class StudentService {
    * @param id 　受講生のID
    * @return　受講生(ID一致)
    */
-  public StudentDetail matchID(Integer id) {
+  public StudentDetail matchID(Integer id) throws TestException {
     Student student = repository.searchStudentID(id);
+    if (student == null) {
+      throw new TestException("存在しないIDです。");
+    }
     List<StudentCourse> studentCourse = repository.searchCourseID(id);
     return new StudentDetail(student, studentCourse);
   }
