@@ -1,6 +1,7 @@
 package raisetech.StudentManagement.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
@@ -11,7 +12,6 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -80,7 +80,7 @@ class StudentServiceTest {
 
     verify(repository).searchStudentName("nameTest");
     verify(repository).searchCourseID(1);
-    Assertions.assertEquals(new StudentDetail(student, studentCourse), actual);
+    assertThat(actual).isEqualTo(new StudentDetail(student, studentCourse));
   }
 
   @Test
@@ -92,8 +92,9 @@ class StudentServiceTest {
 
     when(repository.searchStudentName("nameTest")).thenReturn(null);
 
-    TestException ex = assertThrows(TestException.class, () -> sut.matchName(inputStudentDetail));
-    Assertions.assertEquals("存在しない名前です。", ex.getMessage());
+    assertThatThrownBy(() -> sut.matchName(inputStudentDetail))
+        .isInstanceOf(TestException.class)
+        .hasMessageContaining("存在しない名前です。");
     verify(repository, times(0)).searchCourseID(anyInt());
   }
 
@@ -111,15 +112,16 @@ class StudentServiceTest {
 
     verify(repository).searchStudentID(1);
     verify(repository).searchCourseID(1);
-    Assertions.assertEquals(new StudentDetail(student, studentCourse), actual);
+    assertThat(actual).isEqualTo(new StudentDetail(student, studentCourse));
   }
 
   @Test
   void 受講生詳細のID一致での検索機能_入力した受講生IDが存在しないときに例外を投げること() {
     when(repository.searchStudentID(1)).thenReturn(null);
 
-    TestException ex = assertThrows(TestException.class, () -> sut.matchID(1));
-    Assertions.assertEquals("存在しないIDです。", ex.getMessage());
+    assertThatThrownBy(() -> sut.matchID(1))
+        .isInstanceOf(TestException.class)
+        .hasMessageContaining("存在しないIDです。");
     verify(repository, times(0)).searchCourseID(anyInt());
   }
 
@@ -155,8 +157,8 @@ class StudentServiceTest {
     StudentDetail actual = sut.registerStudent(inputStudentDetail);
 
     for (StudentCourse course : actual.getStudentCourseList()) {
-      Assertions.assertEquals(testStartDay, course.getStartDay());
-      Assertions.assertEquals(testEndDay, course.getEndDay());
+      assertThat(course.getStartDay()).isEqualTo(testStartDay);
+      assertThat(course.getEndDay()).isEqualTo(testEndDay);
     }
   }
 

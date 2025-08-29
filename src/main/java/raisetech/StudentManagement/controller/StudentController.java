@@ -59,7 +59,7 @@ public class StudentController {
       responses = {@ApiResponse(responseCode = "200"),
           @ApiResponse(responseCode = "400", description = "バリデーションエラー", content = @Content())})
   @GetMapping("/student/{id}")
-  public StudentDetail updateStudentHyper(@PathVariable Integer id) {
+  public StudentDetail getStudent(@PathVariable Integer id) {
     return service.matchID(id);
   }
 
