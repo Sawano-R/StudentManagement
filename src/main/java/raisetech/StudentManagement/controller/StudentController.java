@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -59,7 +60,7 @@ public class StudentController {
       responses = {@ApiResponse(responseCode = "200"),
           @ApiResponse(responseCode = "400", description = "バリデーションエラー", content = @Content())})
   @GetMapping("/student/{id}")
-  public StudentDetail getStudent(@PathVariable Integer id) {
+  public StudentDetail getStudent(@PathVariable @Max(99) Integer id) {
     return service.matchID(id);
   }
 
