@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,9 +45,6 @@ class StudentControllerTest {
 
   @Captor
   ArgumentCaptor<StudentDetail> captorStudentDetail;
-
-  @Captor
-  ArgumentCaptor<Integer> captorInteger;
 
   private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -155,8 +153,48 @@ class StudentControllerTest {
   }
 
   @Test
-  void 受講生更新が実行できること() {
+  void 受講生更新が実行できること() throws Exception {
+    Student student = new Student();
+    student.setId(1);
+    student.setName("テストN");
+    student.setNameKana("テストNK");
+    student.setNickname("テストNN");
+    student.setMail("test@example.com");
+    student.setResion("テストR");
 
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setCourse("テストC");
+    List<StudentCourse> studentCourseList = List.of(studentCourse);
+
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
+
+    mockMVC.perform(put("/updateResult").contentType(MediaType.APPLICATION_JSON)
+        .content(studentDetailJson)).andExpect(status().isOk());
+
+    verify(service).updateStudent(captorStudentDetail.capture());
+  }
+
+  @Test
+  void 受講生更新でidを入力していないときにバリデーションエラーが出ること() throws Exception {
+    Student student = new Student();
+    student.setName("テストN");
+    student.setNameKana("テストNK");
+    student.setNickname("テストNN");
+    student.setMail("test@example.com");
+    student.setResion("テストR");
+
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setCourse("テストC");
+    List<StudentCourse> studentCourseList = List.of(studentCourse);
+
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
+
+    mockMVC.perform(put("/updateResult").contentType(MediaType.APPLICATION_JSON)
+        .content(studentDetailJson)).andExpect(status().isBadRequest());
+
+    verify(service, times(0)).updateStudent(captorStudentDetail.capture());
   }
 
   @Test
