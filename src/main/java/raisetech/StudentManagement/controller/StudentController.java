@@ -4,7 +4,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.groups.Default;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import raisetech.StudentManagement.data.StudentValidationGroup.UpdateGroup;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.service.StudentService;
 
@@ -50,7 +52,7 @@ public class StudentController {
           @ApiResponse(responseCode = "400", description = "バリデーションエラー発生", content = @Content())})
   @PostMapping("/registerStudent")
   public ResponseEntity<StudentDetail> registerStudent(
-      @RequestBody @Valid StudentDetail studentDetail) {
+      @RequestBody @Validated(Default.class) StudentDetail studentDetail) {
     StudentDetail responseStudentDetail = service.registerStudent(studentDetail);
     return ResponseEntity.ok(responseStudentDetail);
   }
@@ -59,13 +61,14 @@ public class StudentController {
       responses = {@ApiResponse(responseCode = "200"),
           @ApiResponse(responseCode = "400", description = "バリデーションエラー", content = @Content())})
   @GetMapping("/student/{id}")
-  public StudentDetail updateStudentHyper(@PathVariable Integer id) {
+  public StudentDetail getStudent(@PathVariable @Max(99) Integer id) {
     return service.matchID(id);
   }
 
   @Operation(summary = "受講生更新", description = "受講生詳細を更新します")
   @PutMapping("/updateResult")
-  public ResponseEntity<String> updateStudent(@RequestBody @Valid StudentDetail studentDetail) {
+  public ResponseEntity<String> updateStudent(
+      @RequestBody @Validated({Default.class, UpdateGroup.class}) StudentDetail studentDetail) {
     service.updateStudent(studentDetail);
     return ResponseEntity.ok("更新処理が成功しました");
   }

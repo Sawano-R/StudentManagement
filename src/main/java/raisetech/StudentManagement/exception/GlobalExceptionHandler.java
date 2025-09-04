@@ -1,6 +1,7 @@
 package raisetech.StudentManagement.exception;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -48,5 +49,10 @@ public class GlobalExceptionHandler {
           cause.getTargetType().getSimpleName());
     }
     return ResponseEntity.badRequest().body(message);
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<String> handleConstraintViolation(ConstraintViolationException ex) {
+    return ResponseEntity.badRequest().body("Invalid request: " + ex.getMessage());
   }
 }
