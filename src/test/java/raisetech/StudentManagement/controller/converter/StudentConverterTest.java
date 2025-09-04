@@ -3,18 +3,20 @@ package raisetech.StudentManagement.controller.converter;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 import raisetech.StudentManagement.domain.StudentDetail;
 
-@SpringBootTest
 class StudentConverterTest {
 
-  @Autowired
   private StudentConverter sut;
+
+  @BeforeEach
+  void before() {
+    sut = new StudentConverter();
+  }
 
   @Test
   void 受講生詳細のコンバーターが適切に動作すること() {
