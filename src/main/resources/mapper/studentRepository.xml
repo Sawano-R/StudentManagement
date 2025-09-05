@@ -39,18 +39,18 @@
   <!-- 受講生コ－スの登録-->
   <insert id="registerCourse" parameterType="raisetech.StudentManagement.data.StudentCourse"
     useGeneratedKeys="true" keyProperty="id">
-    INSERT students_courses(id_students,course,start_day,end_day)
+    INSERT INTO students_courses(id_students,course,start_day,end_day)
     values(#{idStudents}, #{course}, #{startDay}, #{endDay})
   </insert>
 
-  <!-- 受講生の登録-->
+  <!-- 受講生の更新-->
   <update id="updateStudent" parameterType="raisetech.StudentManagement.data.Student">
     UPDATE students SET name=#{name}, name_kana=#{nameKana}, nickname=#{nickname}, mail=#{mail},
     resion=#{resion},
     age=#{age}, gender=#{gender}, remark=#{remark}, deleted=#{deleted} WHERE id=#{id}
   </update>
 
-  <!-- 受講生コースの登録-->
+  <!-- 受講生コースの更新-->
   <update id="updateCourse" parameterType="raisetech.StudentManagement.data.StudentCourse">
     UPDATE students_courses SET course = #{course}, deleted=#{deleted} WHERE id = #{id}
   </update>

@@ -117,7 +117,11 @@ public class StudentService {
    * @param studentDetail
    */
   @Transactional
-  public void updateStudent(StudentDetail studentDetail) {
+  public void updateStudent(StudentDetail studentDetail) throws TestException {
+    List<Student> students = repository.search();
+    if (students.stream().noneMatch(n -> n.getId().equals(studentDetail.getStudent().getId()))) {
+      throw new TestException("受講生情報が存在しません。");
+    }
     repository.updateStudent(studentDetail.getStudent());
     studentDetail.getStudentCourseList()
         .forEach(studentCourse -> repository.updateCourse(studentCourse));
