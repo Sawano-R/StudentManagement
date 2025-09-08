@@ -6,12 +6,13 @@ import lombok.Data;
 
 @Data
 @Schema(description = "コース申し込み状況")
-public class StudentCourseStatus {
+public class CourseStatus {
 
   private Integer id;
 
-
   private int idCourses;
+
+  private int idStudents;
 
   @NotBlank
   private String status;

@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentCourseStatus;
 import raisetech.StudentManagement.domain.StudentDetail;
 
 class StudentConverterTest {
@@ -44,6 +46,36 @@ class StudentConverterTest {
         new StudentDetail(student2, studentCourseList2));
 
     List<StudentDetail> actual = sut.convertStudentDetails(studentList, studentCourseList);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void 受講生コース状態のコンバーターが適切に動作すること() {
+    StudentCourse studentCourse1 = new StudentCourse();
+    studentCourse1.setId(1);
+    StudentCourse studentCourse2 = new StudentCourse();
+    studentCourse2.setId(2);
+    StudentCourse studentCourse3 = new StudentCourse();
+    studentCourse3.setId(3);
+
+    CourseStatus courseStatus1 = new CourseStatus();
+    courseStatus1.setIdCourses(3);
+    CourseStatus courseStatus2 = new CourseStatus();
+    courseStatus2.setIdCourses(2);
+    CourseStatus courseStatus3 = new CourseStatus();
+    courseStatus3.setIdCourses(1);
+
+    List<StudentCourse> studentCourseList = List.of(studentCourse1, studentCourse2, studentCourse3);
+    List<CourseStatus> courseStatusList = List.of(courseStatus1, courseStatus2, courseStatus3);
+
+    List<StudentCourseStatus> expected = List.of(
+        new StudentCourseStatus(studentCourse1, courseStatus3),
+        new StudentCourseStatus(studentCourse2, courseStatus2),
+        new StudentCourseStatus(studentCourse3, courseStatus1));
+
+    List<StudentCourseStatus> actual = sut.convertStudentCourseStatusList(studentCourseList,
+        courseStatusList);
 
     assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
   }

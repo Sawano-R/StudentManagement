@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentCourseStatus;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.repository.StudentRepository;
@@ -36,8 +38,11 @@ public class StudentService {
    */
   public List<StudentDetail> searchStudentDetailList() {
     List<Student> studentList = repository.search();
-    List<StudentCourse> studentJavaCoursesList = repository.searchCourseList();
-    return converter.convertStudentDetails(studentList, studentJavaCoursesList);
+    List<StudentCourse> studentCoursesList = repository.searchCourseList();
+    List<CourseStatus> courseStatusList = repository.searchStatusList();
+    List<StudentCourseStatus> studentCourseStatusList = converter.convertStudentCourseStatusList(
+        studentCoursesList, courseStatusList);
+    return converter.convertStudentDetails(studentList, studentCourseStatusList);
   }
 
   /**
@@ -51,8 +56,11 @@ public class StudentService {
     if (student == null) {
       throw new TestException("存在しない名前です。");
     }
-    List<StudentCourse> studentCourse = repository.searchCourseID(student.getId());
-    return new StudentDetail(student, studentCourse);
+    List<StudentCourse> studentCourses = repository.searchCourseID(student.getId());
+    List<CourseStatus> courseStatuses = repository.searchStatusID(student.getId());
+    List<StudentCourseStatus> studentCourseStatusList = converter.convertStudentCourseStatusList(
+        studentCourses, courseStatuses);
+    return new StudentDetail(student, studentCourseStatusList);
   }
 
   /**
@@ -66,8 +74,11 @@ public class StudentService {
     if (student == null) {
       throw new TestException("存在しないIDです。");
     }
-    List<StudentCourse> studentCourse = repository.searchCourseID(id);
-    return new StudentDetail(student, studentCourse);
+    List<StudentCourse> studentCourses = repository.searchCourseID(id);
+    List<CourseStatus> courseStatuses = repository.searchStatusID(id);
+    List<StudentCourseStatus> studentCourseStatusList = converter.convertStudentCourseStatusList(
+        studentCourses, courseStatuses);
+    return new StudentDetail(student, studentCourseStatusList);
   }
 
   /**
@@ -79,7 +90,7 @@ public class StudentService {
   @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
     repository.registerStudent(studentDetail.getStudent());
-    studentDetail.getStudentCourseList().forEach(studentCourse -> {
+    studentDetail.getStudentCourseStatusList().forEach(studentCourse -> {
       initStudentCourse(studentDetail, studentCourse);
       repository.registerCourse(studentCourse);
     });
@@ -123,7 +134,7 @@ public class StudentService {
       throw new TestException("受講生情報が存在しません。");
     }
     repository.updateStudent(studentDetail.getStudent());
-    studentDetail.getStudentCourseList()
+    studentDetail.getStudentCourseStatusList()
         .forEach(studentCourse -> repository.updateCourse(studentCourse));
   }
 }

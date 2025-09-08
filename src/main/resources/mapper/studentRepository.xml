@@ -28,6 +28,16 @@
     SELECT * FROM students_courses WHERE id_students = #{idStudents}
   </select>
 
+  <!-- コース状態の全件検索-->
+  <select id="searchStatusList" resultType="raisetech.StudentManagement.data.CourseStatus">
+    SELECT * FROM courses_status
+  </select>
+
+  <!-- コース状態の単一検索(受講生ID)-->
+  <select id="searchStatusID" resultType="raisetech.StudentManagement.data.CourseStatus">
+    SELECT * FROM courses_status WHERE id_students = #{idStudents}
+  </select>
+
   <!-- 受講生の登録-->
   <insert id="registerStudent" parameterType="raisetech.StudentManagement.data.Student"
     useGeneratedKeys="true" keyProperty="id">
