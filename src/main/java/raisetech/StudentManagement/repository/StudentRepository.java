@@ -54,6 +54,9 @@ public interface StudentRepository {
    */
   void registerCourse(StudentCourse inputCourse);
 
+
+  void registerStatus(CourseStatus courseStatus);
+
   /**
    * 受講生情報の更新をします。更新するのはID以外です。
    */
@@ -63,4 +66,6 @@ public interface StudentRepository {
    * 受講生コース情報の更新をします。更新するのはコース名と削除フラグです。
    */
   void updateCourse(StudentCourse updateCourse);
+
+  void updateStatus(CourseStatus courseStatus);
 }
