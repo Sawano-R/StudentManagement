@@ -28,20 +28,22 @@ class StudentConverterTest {
     Student student2 = new Student();
     student2.setId(2);
 
-    StudentCourse studentCourse = new StudentCourse();
-
     StudentCourseStatus studentCourseStatus1 = new StudentCourseStatus();
-    studentCourse.setId(1);
-    studentCourseStatus1.setStudentCourse(studentCourse);
+    StudentCourse studentCourse1 = new StudentCourse();
+    studentCourse1.setIdStudents(1);
+    studentCourseStatus1.setStudentCourse(studentCourse1);
     StudentCourseStatus studentCourseStatus2 = new StudentCourseStatus();
-    studentCourse.setId(2);
-    studentCourseStatus2.setStudentCourse(studentCourse);
+    StudentCourse studentCourse2 = new StudentCourse();
+    studentCourse2.setIdStudents(2);
+    studentCourseStatus2.setStudentCourse(studentCourse2);
     StudentCourseStatus studentCourseStatus3 = new StudentCourseStatus();
-    studentCourse.setId(1);
-    studentCourseStatus3.setStudentCourse(studentCourse);
+    StudentCourse studentCourse3 = new StudentCourse();
+    studentCourse3.setIdStudents(1);
+    studentCourseStatus3.setStudentCourse(studentCourse3);
     StudentCourseStatus studentCourseStatus4 = new StudentCourseStatus();
-    studentCourse.setId(1);
-    studentCourseStatus4.setStudentCourse(studentCourse);
+    StudentCourse studentCourse4 = new StudentCourse();
+    studentCourse4.setIdStudents(1);
+    studentCourseStatus4.setStudentCourse(studentCourse4);
 
     List<Student> studentList = List.of(student1, student2);
     List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus1,
@@ -109,7 +111,7 @@ class StudentConverterTest {
     assertThatThrownBy(
         () -> sut.convertStudentCourseStatusList(studentCourseList, courseStatusList))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("CourseStatus と StudentCourse は両方存在する必要があります。");
+        .hasMessageContaining("CourseStatusが過剰に存在しています。");
   }
 
   @Test
@@ -132,6 +134,6 @@ class StudentConverterTest {
     assertThatThrownBy(
         () -> sut.convertStudentCourseStatusList(studentCourseList, courseStatusList))
         .isInstanceOf(IllegalStateException.class)
-        .hasMessageContaining("CourseStatus と StudentCourse は両方存在する必要があります。");
+        .hasMessageContaining("StudentCourseが過剰に存在しています。");
   }
 }

@@ -21,3 +21,11 @@ start_day DATE NOT NULL,
 end_day DATE NOT NULL,
 deleted boolean
 );
+
+CREATE TABLE IF NOT EXISTS courses_status
+(
+id INT PRIMARY KEY AUTO_INCREMENT,
+id_courses INT NOT NULL,
+id_students INT NOT NULL,
+status VARCHAR(10) NOT NULL
+);

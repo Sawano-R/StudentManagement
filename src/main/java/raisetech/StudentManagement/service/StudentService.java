@@ -97,6 +97,9 @@ public class StudentService {
     return studentDetail;
   }
 
+  /**
+   *コース状態情報に受講生ID、コースIDを格納する。
+   */
   private static void initCourseStatus(StudentCourseStatus studentCourseStatus, Integer studentID) {
     CourseStatus courseStatus = new CourseStatus();
     courseStatus.setIdStudents(studentID);
@@ -119,8 +122,6 @@ public class StudentService {
 
   /**
    * 受講生詳細の更新を行う。
-   *
-   * @param studentDetail
    */
   @Transactional
   public void updateStudent(StudentDetail studentDetail) throws TestException {

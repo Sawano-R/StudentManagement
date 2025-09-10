@@ -1,7 +1,9 @@
 package raisetech.StudentManagement.controller.converter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import raisetech.StudentManagement.data.CourseStatus;
@@ -38,6 +40,8 @@ public class StudentConverter {
   public List<StudentCourseStatus> convertStudentCourseStatusList(
       List<StudentCourse> studentCourseList, List<CourseStatus> courseStatusList) {
     List<StudentCourseStatus> studentCourseStatuses = new ArrayList<>();
+    Set<Integer> matchedCourseIds = new HashSet<>();
+
     studentCourseList.forEach(studentCourse -> {
       StudentCourseStatus studentCourseStatus = new StudentCourseStatus();
       studentCourseStatus.setStudentCourse(studentCourse);
@@ -46,19 +50,26 @@ public class StudentConverter {
           .filter(courseStatus -> studentCourse.getId().equals(courseStatus.getIdCourses()))
           .findFirst().orElse(null);
 
+      if (convertCourseStatus != null){
+      matchedCourseIds.add(convertCourseStatus.getIdCourses());
+      }
+
       studentCourseStatus.setCourseStatus(convertCourseStatus);
       studentCourseStatuses.add(studentCourseStatus);
     });
-    for (StudentCourseStatus status : studentCourseStatuses) {
-      boolean hasCourseStatus = status.getCourseStatus() != null;
-      boolean hasStudentCourse = status.getStudentCourse() != null;
 
-      if (hasCourseStatus ^ hasStudentCourse) {
-        throw new IllegalStateException(
-            "CourseStatus と StudentCourse は両方存在する必要があります。"
-        );
+
+    for (StudentCourseStatus status : studentCourseStatuses) {
+      if (status.getCourseStatus() == null) {
+        throw new IllegalStateException("StudentCourseが過剰に存在しています。");
       }
     }
+    boolean unmatchedCourseStatus = courseStatusList.stream()
+        .anyMatch(courseStatus -> !matchedCourseIds.contains(courseStatus.getIdCourses()));
+    if(unmatchedCourseStatus){
+      throw new IllegalStateException("CourseStatusが過剰に存在しています。");
+    }
+
     return studentCourseStatuses;
   }
 }

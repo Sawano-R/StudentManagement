@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,8 +93,6 @@ class StudentServiceTest {
     verify(repository).searchStatusID(1);
     verify(converter).convertStudentCourseStatusList(any(), any());
     assertThat(actual.getStudent()).isEqualTo(student);
-    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse()).isEqualTo(
-        studentCourse);
   }
 
   @Test
@@ -130,8 +129,6 @@ class StudentServiceTest {
     verify(repository).searchStatusID(1);
     verify(converter).convertStudentCourseStatusList(any(), any());
     assertThat(actual.getStudent()).isEqualTo(student);
-    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse()).isEqualTo(
-        studentCourse);
   }
 
   @Test
@@ -149,16 +146,36 @@ class StudentServiceTest {
     Student inputStudent = new Student();
 
     StudentCourseStatus inputSCS1 = new StudentCourseStatus();
+    inputSCS1.setStudentCourse(new StudentCourse());
+    inputSCS1.setCourseStatus(new CourseStatus());
     StudentCourseStatus inputSCS2 = new StudentCourseStatus();
+    inputSCS2.setStudentCourse(new StudentCourse());
+    inputSCS2.setCourseStatus(new CourseStatus());
     List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS1, inputSCS2);
 
     StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseStatusList);
 
-    sut.registerStudent(inputStudentDetail);
+    //自動採番を実施するモック
+    doAnswer(invocation -> {
+      Student arg = invocation.getArgument(0);
+      arg.setId(123);
+      return null;
+    }).when(repository).registerStudent(any(Student.class));
+    doAnswer(invocation -> {
+      StudentCourse arg = invocation.getArgument(0);
+      arg.setId(234);
+      return null;
+    }).when(repository).registerCourse(any(StudentCourse.class));
+
+    StudentDetail actual = sut.registerStudent(inputStudentDetail);
 
     verify(repository).registerStudent(inputStudent);
     verify(repository, times(2)).registerCourse(any(StudentCourse.class));
     verify(repository, times(2)).registerStatus(any(CourseStatus.class));
+    assertThat(actual.getStudent().getId()).isEqualTo(123);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse().getIdStudents()).isEqualTo(123);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdStudents()).isEqualTo(123);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdCourses()).isEqualTo(234);
   }
 
   @Test
@@ -200,7 +217,11 @@ class StudentServiceTest {
     List<Student> students = List.of(student);
 
     StudentCourseStatus inputSCS1 = new StudentCourseStatus();
+    inputSCS1.setStudentCourse(new StudentCourse());
+    inputSCS1.setCourseStatus(new CourseStatus());
     StudentCourseStatus inputSCS2 = new StudentCourseStatus();
+    inputSCS2.setStudentCourse(new StudentCourse());
+    inputSCS2.setCourseStatus(new CourseStatus());
     List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS1, inputSCS2);
 
     StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseStatusList);

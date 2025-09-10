@@ -8,6 +8,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -110,6 +111,41 @@ class StudentRepositoryTest {
   }
 
   @Test
+  void コース状態の全件検索ができること(){
+    List<CourseStatus> actual = sut.searchStatusList();
+
+    assertThat(actual.size()).isEqualTo(6);
+  }
+
+  @Test
+  void コース状態のID検索ができること(){
+    CourseStatus courseStatus1 = new CourseStatus();
+    courseStatus1.setId(2);
+    courseStatus1.setIdCourses(2);
+    courseStatus1.setIdStudents(1);
+    courseStatus1.setStatus("本申込");
+    CourseStatus courseStatus2 = new CourseStatus();
+    courseStatus2.setId(1);
+    courseStatus2.setIdCourses(1);
+    courseStatus2.setIdStudents(1);
+    courseStatus2.setStatus("仮申込");
+    List<CourseStatus> expected = List.of(courseStatus1,courseStatus2);
+
+    List<CourseStatus> actual = sut.searchStatusID(1);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void コース状態が存在しない受講生ID検索すると空のリストを返すこと(){
+    List<CourseStatus> expected = new ArrayList<>();
+
+    List<CourseStatus> actual = sut.searchStatusID(99);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
   void 受講生の登録ができること() {
     Student student = new Student();
     student.setName("テスト");
@@ -144,6 +180,20 @@ class StudentRepositoryTest {
   }
 
   @Test
+  void コース状態の登録ができること(){
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setIdCourses(6);
+    courseStatus.setIdStudents(5);
+    courseStatus.setStatus("本申込");
+
+    sut.registerStatus(courseStatus);
+
+    List<CourseStatus> actual = sut.searchStatusList();
+    assertThat(actual.size()).isEqualTo(7);
+    assertThat(actual.get(6)).isEqualTo(courseStatus);
+  }
+
+  @Test
   void 受講生の更新ができること() {
     Student student = new Student();
     student.setId(1);
@@ -174,5 +224,17 @@ class StudentRepositoryTest {
 
     List<StudentCourse> actual = sut.searchCourseList();
     assertThat(actual.get(0).getCourse()).isEqualTo("テスト");
+  }
+
+  @Test
+  void コース状態の更新ができること(){
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setId(1);
+    courseStatus.setStatus("本申込");
+
+    sut.updateStatus(courseStatus);
+
+    List<CourseStatus> actual = sut.searchStatusList();
+    assertThat(actual.getFirst().getStatus()).isEqualTo("本申込");
   }
 }

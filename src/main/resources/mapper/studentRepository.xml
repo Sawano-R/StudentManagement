@@ -56,7 +56,7 @@
   <!-- コ－ス状態の登録-->
   <insert id="registerStatus" parameterType="raisetech.StudentManagement.data.CourseStatus"
     useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO courses_Status(id_course,id_students,status)
+    INSERT INTO courses_Status(id_courses,id_students,status)
     values(#{idCourses}, #{idStudents}, #{status})
   </insert>
 
@@ -74,6 +74,6 @@
 
   <!-- コース状態の更新-->
   <update id="updateStatus" parameterType="raisetech.StudentManagement.data.CourseStatus">
-    UPDATE courses_Status SET status = #{status} WHERE id = #{id}
+    UPDATE courses_status SET status = #{status} WHERE id = #{id}
   </update>
 </mapper>

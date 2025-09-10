@@ -42,6 +42,9 @@ public interface StudentRepository {
    */
   List<CourseStatus> searchStatusList();
 
+  /**
+   *コース状態情報を受講生IDと合致するものを検索します。
+   */
   List<CourseStatus> searchStatusID(Integer idStudents);
 
   /**
@@ -54,7 +57,9 @@ public interface StudentRepository {
    */
   void registerCourse(StudentCourse inputCourse);
 
-
+  /**
+   *コース状態情報を登録します。
+   */
   void registerStatus(CourseStatus courseStatus);
 
   /**
@@ -67,5 +72,8 @@ public interface StudentRepository {
    */
   void updateCourse(StudentCourse updateCourse);
 
+  /**
+   *コース状態情報の更新をします。更新するのは状態です。
+   */
   void updateStatus(CourseStatus courseStatus);
 }
