@@ -2,7 +2,6 @@ package raisetech.StudentManagement.repository;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
-import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
 
@@ -38,13 +37,6 @@ public interface StudentRepository {
   List<StudentCourse> searchCourseID(Integer idStudents);
 
   /**
-   * コース状態情報の全件検索です。
-   */
-  List<CourseStatus> searchStatusList();
-
-  List<CourseStatus> searchStatusID(Integer idStudents);
-
-  /**
    * 受講生情報を登録します。deletedは常にfalseです。
    */
   void registerStudent(Student student);
@@ -53,9 +45,6 @@ public interface StudentRepository {
    * 受講生コースを登録します。
    */
   void registerCourse(StudentCourse inputCourse);
-
-
-  void registerStatus(CourseStatus courseStatus);
 
   /**
    * 受講生情報の更新をします。更新するのはID以外です。
@@ -66,6 +55,4 @@ public interface StudentRepository {
    * 受講生コース情報の更新をします。更新するのはコース名と削除フラグです。
    */
   void updateCourse(StudentCourse updateCourse);
-
-  void updateStatus(CourseStatus courseStatus);
 }
