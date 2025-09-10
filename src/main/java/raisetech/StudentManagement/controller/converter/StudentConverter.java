@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentCourseStatus;
 import raisetech.StudentManagement.domain.StudentDetail;
 
 /**
@@ -14,27 +16,39 @@ import raisetech.StudentManagement.domain.StudentDetail;
 @Component
 public class StudentConverter {
 
-  /**
-   * 受講生に紐づく受講生コース情報をマッピングする。 コース情報は受講生に対して複数存在するためループを回して受講生詳細情報を組み立てる。
-   *
-   * @param students          　受講生一覧(全件)
-   * @param studentCourseList 　コース一覧(全件)
-   * @return
-   */
+
   public List<StudentDetail> convertStudentDetails(List<Student> students,
-      List<StudentCourse> studentCourseList) {
+      List<StudentCourseStatus> studentCourseStatusList) {
     List<StudentDetail> studentDetails = new ArrayList<>();
     students.forEach(student -> {
       StudentDetail studentDetail = new StudentDetail();
       studentDetail.setStudent(student);
 
-      List<StudentCourse> convertStudentCourseList = studentCourseList.stream()
-          .filter(studentCourse -> student.getId().equals(studentCourse.getIdStudents()))
+      List<StudentCourseStatus> convertStudentCourseStatusList = studentCourseStatusList.stream()
+          .filter(studentCourseStatus -> student.getId()
+              .equals(studentCourseStatus.getStudentCourse().getIdStudents()))
           .collect(Collectors.toList());
 
-      studentDetail.setStudentCourseList(convertStudentCourseList);
+      studentDetail.setStudentCourseStatusList(convertStudentCourseStatusList);
       studentDetails.add(studentDetail);
     });
     return studentDetails;
+  }
+
+  public List<StudentCourseStatus> convertStudentCourseStatusList(
+      List<StudentCourse> studentCourseList, List<CourseStatus> courseStatusList) {
+    List<StudentCourseStatus> studentCourseStatuses = new ArrayList<>();
+    studentCourseList.forEach(studentCourse -> {
+      StudentCourseStatus studentCourseStatus = new StudentCourseStatus();
+      studentCourseStatus.setStudentCourse(studentCourse);
+
+      CourseStatus convertCourseStatus = courseStatusList.stream()
+          .filter(courseStatus -> studentCourse.getId().equals(courseStatus.getIdCourses()))
+          .findFirst().orElse(null);
+
+      studentCourseStatus.setCourseStatus(convertCourseStatus);
+      studentCourseStatuses.add(studentCourseStatus);
+    });
+    return studentCourseStatuses;
   }
 }

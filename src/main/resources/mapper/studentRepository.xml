@@ -28,6 +28,16 @@
     SELECT * FROM students_courses WHERE id_students = #{idStudents}
   </select>
 
+  <!-- コース状態の全件検索-->
+  <select id="searchStatusList" resultType="raisetech.StudentManagement.data.CourseStatus">
+    SELECT * FROM courses_status
+  </select>
+
+  <!-- コース状態の単一検索(受講生ID)-->
+  <select id="searchStatusID" resultType="raisetech.StudentManagement.data.CourseStatus">
+    SELECT * FROM courses_status WHERE id_students = #{idStudents}
+  </select>
+
   <!-- 受講生の登録-->
   <insert id="registerStudent" parameterType="raisetech.StudentManagement.data.Student"
     useGeneratedKeys="true" keyProperty="id">
@@ -39,19 +49,31 @@
   <!-- 受講生コ－スの登録-->
   <insert id="registerCourse" parameterType="raisetech.StudentManagement.data.StudentCourse"
     useGeneratedKeys="true" keyProperty="id">
-    INSERT students_courses(id_students,course,start_day,end_day)
+    INSERT INTO students_courses(id_students,course,start_day,end_day)
     values(#{idStudents}, #{course}, #{startDay}, #{endDay})
   </insert>
 
-  <!-- 受講生の登録-->
+  <!-- コ－ス状態の登録-->
+  <insert id="registerStatus" parameterType="raisetech.StudentManagement.data.CourseStatus"
+    useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO courses_Status(id_course,id_students,status)
+    values(#{idCourses}, #{idStudents}, #{status})
+  </insert>
+
+  <!-- 受講生の更新-->
   <update id="updateStudent" parameterType="raisetech.StudentManagement.data.Student">
     UPDATE students SET name=#{name}, name_kana=#{nameKana}, nickname=#{nickname}, mail=#{mail},
     resion=#{resion},
     age=#{age}, gender=#{gender}, remark=#{remark}, deleted=#{deleted} WHERE id=#{id}
   </update>
 
-  <!-- 受講生コースの登録-->
+  <!-- 受講生コースの更新-->
   <update id="updateCourse" parameterType="raisetech.StudentManagement.data.StudentCourse">
     UPDATE students_courses SET course = #{course}, deleted=#{deleted} WHERE id = #{id}
+  </update>
+
+  <!-- コース状態の更新-->
+  <update id="updateStatus" parameterType="raisetech.StudentManagement.data.CourseStatus">
+    UPDATE courses_Status SET status = #{status} WHERE id = #{id}
   </update>
 </mapper>

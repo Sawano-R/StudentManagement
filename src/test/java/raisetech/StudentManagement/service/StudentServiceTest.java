@@ -165,6 +165,11 @@ class StudentServiceTest {
   @Test
   void 受講生詳細の更新_レポジトリが適切に呼び出せれること() {
     Student inputStudent = new Student();
+    inputStudent.setId(1);
+
+    Student student = new Student();
+    student.setId(1);
+    List<Student> students = List.of(student);
 
     StudentCourse inputCourse1 = new StudentCourse();
     StudentCourse inputCourse2 = new StudentCourse();
@@ -172,9 +177,38 @@ class StudentServiceTest {
 
     StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
 
+    when(repository.search()).thenReturn(students);
+
     sut.updateStudent(inputStudentDetail);
 
+    verify(repository).search();
     verify(repository).updateStudent(inputStudent);
     verify(repository, times(2)).updateCourse(any(StudentCourse.class));
+  }
+
+  @Test
+  void 受講生更新で存在しないIDの場合エラーを返すこと() {
+    Student inputStudent = new Student();
+    inputStudent.setId(1);
+
+    Student student = new Student();
+    student.setId(2);
+    List<Student> students = List.of(student);
+
+    StudentCourse inputCourse1 = new StudentCourse();
+    StudentCourse inputCourse2 = new StudentCourse();
+    List<StudentCourse> studentCourseList = List.of(inputCourse1, inputCourse2);
+
+    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
+
+    when(repository.search()).thenReturn(students);
+
+    assertThatThrownBy(() -> sut.updateStudent(inputStudentDetail))
+        .isInstanceOf(TestException.class)
+        .hasMessageContaining("受講生情報が存在しません。");
+
+    verify(repository).search();
+    verify(repository, times(0)).updateStudent(inputStudent);
+    verify(repository, times(0)).updateCourse(any(StudentCourse.class));
   }
 }
