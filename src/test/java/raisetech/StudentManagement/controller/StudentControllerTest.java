@@ -26,8 +26,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentCourseStatus;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.service.StudentService;
 
@@ -68,9 +70,12 @@ class StudentControllerTest {
 
     StudentCourse studentCourse = new StudentCourse();
     studentCourse.setCourse("テストC");
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("申込中");
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus(studentCourse, courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus);
 
-    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseStatusList);
     String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
 
     mockMVC.perform(post("/registerStudent")
@@ -82,7 +87,12 @@ class StudentControllerTest {
     StudentDetail actual = captorStudentDetail.getValue();
 
     assertThat(actual.getStudent().getName()).isEqualTo("テストN");
-    assertThat(actual.getStudentCourseList().getFirst().getCourse()).isEqualTo("テストC");
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getStudentCourse().getCourse()).isEqualTo(
+        "テストC");
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getCourseStatus().getStatus()).isEqualTo(
+        "申込中");
   }
 
   @Test
@@ -95,9 +105,12 @@ class StudentControllerTest {
 
     StudentCourse studentCourse = new StudentCourse();
     studentCourse.setCourse("テストC");
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("申込中");
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus(studentCourse, courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus);
 
-    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseStatusList);
     String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
 
     mockMVC.perform(post("/registerStudent")
@@ -119,9 +132,12 @@ class StudentControllerTest {
 
     StudentCourse studentCourse = new StudentCourse();
     studentCourse.setCourse("テスト");
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("申込中");
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus(studentCourse, courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus);
 
-    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseStatusList);
 
     when(service.matchID(1)).thenReturn(studentDetail);
 
@@ -132,7 +148,12 @@ class StudentControllerTest {
     StudentDetail actual = objectMapper.readValue(jsonResponse, StudentDetail.class);
 
     assertThat(actual.getStudent().getName()).isEqualTo("名前");
-    assertThat(actual.getStudentCourseList().getFirst().getCourse()).isEqualTo("テスト");
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getStudentCourse().getCourse()).isEqualTo(
+        "テスト");
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getCourseStatus().getStatus()).isEqualTo(
+        "申込中");
     verify(service).matchID(1);
   }
 
@@ -163,10 +184,15 @@ class StudentControllerTest {
     student.setResion("テストR");
 
     StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setId(1);
     studentCourse.setCourse("テストC");
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setId(1);
+    courseStatus.setStatus("申込中");
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus(studentCourse, courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus);
 
-    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseStatusList);
     String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
 
     mockMVC.perform(put("/updateResult").contentType(MediaType.APPLICATION_JSON)
@@ -186,9 +212,12 @@ class StudentControllerTest {
 
     StudentCourse studentCourse = new StudentCourse();
     studentCourse.setCourse("テストC");
-    List<StudentCourse> studentCourseList = List.of(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("申込中");
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus(studentCourse, courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(studentCourseStatus);
 
-    StudentDetail studentDetail = new StudentDetail(student, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(student, studentCourseStatusList);
     String studentDetailJson = objectMapper.writeValueAsString(studentDetail);
 
     mockMVC.perform(put("/updateResult").contentType(MediaType.APPLICATION_JSON)
@@ -251,6 +280,31 @@ class StudentControllerTest {
     StudentCourse studentCourse = new StudentCourse();
 
     Set<ConstraintViolation<StudentCourse>> violations = validator.validate(studentCourse);
+
+    assertThat(violations.size()).isEqualTo(1);
+  }
+
+  @Test
+  void コース状態情報で形式通りに入力して問題が発生しないこと() {
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setId(999);
+    courseStatus.setIdStudents(999);
+    courseStatus.setIdCourses(999);
+    courseStatus.setStatus("テスト");
+
+    Set<ConstraintViolation<CourseStatus>> violations = validator.validate(courseStatus);
+
+    assertThat(violations.size()).isEqualTo(0);
+  }
+
+  @Test
+  void コース状態情報で状態が空欄の時入力チェックにかかること() {
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setId(999);
+    courseStatus.setIdStudents(999);
+    courseStatus.setIdCourses(999);
+
+    Set<ConstraintViolation<CourseStatus>> violations = validator.validate(courseStatus);
 
     assertThat(violations.size()).isEqualTo(1);
   }

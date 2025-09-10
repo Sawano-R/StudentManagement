@@ -18,8 +18,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
+import raisetech.StudentManagement.data.CourseStatus;
 import raisetech.StudentManagement.data.Student;
 import raisetech.StudentManagement.data.StudentCourse;
+import raisetech.StudentManagement.domain.StudentCourseStatus;
 import raisetech.StudentManagement.domain.StudentDetail;
 import raisetech.StudentManagement.exception.TestException;
 import raisetech.StudentManagement.repository.StudentRepository;
@@ -47,16 +49,21 @@ class StudentServiceTest {
 
     List<StudentCourse> studentCourseList = new ArrayList<>();
 
+    List<CourseStatus> courseStatusList = new ArrayList<>();
+
     when(repository.search()).thenReturn(studentList);
     when(repository.searchCourseList()).thenReturn(studentCourseList);
+    when(repository.searchStatusList()).thenReturn(courseStatusList);
 
     //実行
     sut.searchStudentDetailList();
 
     //検証
-    verify(repository, times(1)).search();
-    verify(repository, times(1)).searchCourseList();
-    verify(converter, times(1)).convertStudentDetails(studentList, studentCourseList);
+    verify(repository).search();
+    verify(repository).searchCourseList();
+    verify(repository).searchStatusList();
+    verify(converter).convertStudentCourseStatusList(studentCourseList, courseStatusList);
+    verify(converter).convertStudentDetails(any(), any());
 
   }
 
@@ -72,15 +79,21 @@ class StudentServiceTest {
     student.setId(1);
 
     List<StudentCourse> studentCourse = new ArrayList<>();
+    List<CourseStatus> courseStatusList = new ArrayList<>();
 
     when(repository.searchStudentName("nameTest")).thenReturn(student);
     when(repository.searchCourseID(1)).thenReturn(studentCourse);
+    when(repository.searchStatusID(1)).thenReturn(courseStatusList);
 
     StudentDetail actual = sut.matchName(inputStudentDetail);
 
     verify(repository).searchStudentName("nameTest");
     verify(repository).searchCourseID(1);
-    assertThat(actual).isEqualTo(new StudentDetail(student, studentCourse));
+    verify(repository).searchStatusID(1);
+    verify(converter).convertStudentCourseStatusList(any(), any());
+    assertThat(actual.getStudent()).isEqualTo(student);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse()).isEqualTo(
+        studentCourse);
   }
 
   @Test
@@ -104,15 +117,21 @@ class StudentServiceTest {
     Student student = new Student();
 
     List<StudentCourse> studentCourse = new ArrayList<>();
+    List<CourseStatus> courseStatusList = new ArrayList<>();
 
     when(repository.searchStudentID(1)).thenReturn(student);
     when(repository.searchCourseID(1)).thenReturn(studentCourse);
+    when(repository.searchStatusID(1)).thenReturn(courseStatusList);
 
     StudentDetail actual = sut.matchID(1);
 
     verify(repository).searchStudentID(1);
     verify(repository).searchCourseID(1);
-    assertThat(actual).isEqualTo(new StudentDetail(student, studentCourse));
+    verify(repository).searchStatusID(1);
+    verify(converter).convertStudentCourseStatusList(any(), any());
+    assertThat(actual.getStudent()).isEqualTo(student);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse()).isEqualTo(
+        studentCourse);
   }
 
   @Test
@@ -129,36 +148,45 @@ class StudentServiceTest {
   void 受講生詳細の登録_レポジトリが適切に呼び出せれていること() {
     Student inputStudent = new Student();
 
-    StudentCourse inputCourse1 = new StudentCourse();
-    StudentCourse inputCourse2 = new StudentCourse();
-    List<StudentCourse> studentCourseList = List.of(inputCourse1, inputCourse2);
+    StudentCourseStatus inputSCS1 = new StudentCourseStatus();
+    StudentCourseStatus inputSCS2 = new StudentCourseStatus();
+    List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS1, inputSCS2);
 
-    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
+    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseStatusList);
 
     sut.registerStudent(inputStudentDetail);
 
     verify(repository).registerStudent(inputStudent);
     verify(repository, times(2)).registerCourse(any(StudentCourse.class));
+    verify(repository, times(2)).registerStatus(any(CourseStatus.class));
   }
 
   @Test
-  void 受講生コースへの開始日と終了日の格納_受講生詳細登録を呼び出しその中で使われるinitStudentCourseが適切に処理されていること() {
+  void 受講生コース状態への情報の格納_受講生詳細登録を呼び出しその中で使われるinitStudentCourseとinitCourseStatusが適切に処理されていること() {
     Student inputStudent = new Student();
+    inputStudent.setId(1);
 
-    StudentCourse inputCourse1 = new StudentCourse();
-    StudentCourse inputCourse2 = new StudentCourse();
-    List<StudentCourse> studentCourseList = List.of(inputCourse1, inputCourse2);
+    StudentCourse inputCourse = new StudentCourse();
+    inputCourse.setId(2);
+    CourseStatus inputStatus = new CourseStatus();
+    inputStatus.setStatus("テスト");
+    StudentCourseStatus inputSCS = new StudentCourseStatus(inputCourse, inputStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS);
 
-    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
+    StudentDetail studentDetail = new StudentDetail(inputStudent, studentCourseStatusList);
 
     Date testStartDay = Date.valueOf(LocalDate.now());
     Date testEndDay = Date.valueOf(LocalDate.now().plusMonths(3));
 
-    StudentDetail actual = sut.registerStudent(inputStudentDetail);
+    StudentDetail actual = sut.registerStudent(studentDetail);
 
-    for (StudentCourse course : actual.getStudentCourseList()) {
-      assertThat(course.getStartDay()).isEqualTo(testStartDay);
-      assertThat(course.getEndDay()).isEqualTo(testEndDay);
+    for (StudentCourseStatus SCS : actual.getStudentCourseStatusList()) {
+      assertThat(SCS.getStudentCourse().getIdStudents()).isEqualTo(1);
+      assertThat(SCS.getStudentCourse().getStartDay()).isEqualTo(testStartDay);
+      assertThat(SCS.getStudentCourse().getEndDay()).isEqualTo(testEndDay);
+      assertThat(SCS.getCourseStatus().getIdStudents()).isEqualTo(1);
+      assertThat(SCS.getCourseStatus().getIdCourses()).isEqualTo(2);
+      assertThat(SCS.getCourseStatus().getStatus()).isEqualTo("テスト");
     }
   }
 
@@ -171,11 +199,11 @@ class StudentServiceTest {
     student.setId(1);
     List<Student> students = List.of(student);
 
-    StudentCourse inputCourse1 = new StudentCourse();
-    StudentCourse inputCourse2 = new StudentCourse();
-    List<StudentCourse> studentCourseList = List.of(inputCourse1, inputCourse2);
+    StudentCourseStatus inputSCS1 = new StudentCourseStatus();
+    StudentCourseStatus inputSCS2 = new StudentCourseStatus();
+    List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS1, inputSCS2);
 
-    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
+    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseStatusList);
 
     when(repository.search()).thenReturn(students);
 
@@ -184,6 +212,7 @@ class StudentServiceTest {
     verify(repository).search();
     verify(repository).updateStudent(inputStudent);
     verify(repository, times(2)).updateCourse(any(StudentCourse.class));
+    verify(repository, times(2)).updateStatus(any(CourseStatus.class));
   }
 
   @Test
@@ -195,11 +224,11 @@ class StudentServiceTest {
     student.setId(2);
     List<Student> students = List.of(student);
 
-    StudentCourse inputCourse1 = new StudentCourse();
-    StudentCourse inputCourse2 = new StudentCourse();
-    List<StudentCourse> studentCourseList = List.of(inputCourse1, inputCourse2);
+    StudentCourseStatus inputSCS1 = new StudentCourseStatus();
+    StudentCourseStatus inputSCS2 = new StudentCourseStatus();
+    List<StudentCourseStatus> studentCourseStatusList = List.of(inputSCS1, inputSCS2);
 
-    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseList);
+    StudentDetail inputStudentDetail = new StudentDetail(inputStudent, studentCourseStatusList);
 
     when(repository.search()).thenReturn(students);
 
@@ -210,5 +239,6 @@ class StudentServiceTest {
     verify(repository).search();
     verify(repository, times(0)).updateStudent(inputStudent);
     verify(repository, times(0)).updateCourse(any(StudentCourse.class));
+    verify(repository, times(0)).updateStatus(any(CourseStatus.class));
   }
 }

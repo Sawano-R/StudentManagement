@@ -33,8 +33,6 @@ public class StudentService {
 
   /**
    * 受講生の全件検索です。それぞれ受講生自体、受講生のコースを検索します。
-   *
-   * @return　受講生
    */
   public List<StudentDetail> searchStudentDetailList() {
     List<Student> studentList = repository.search();
@@ -49,7 +47,6 @@ public class StudentService {
    * 受講生検索です。入力した名前と合致する受講生情報を検索します。
    *
    * @param studentDetail 　受講生の名前
-   * @return　受講生(名前一致)
    */
   public StudentDetail matchName(StudentDetail studentDetail) throws TestException {
     Student student = repository.searchStudentName(studentDetail.getStudent().getName());
@@ -65,9 +62,6 @@ public class StudentService {
 
   /**
    * 受講生検索です。入力したIDと合致する受講生情報を検索します。
-   *
-   * @param id 　受講生のID
-   * @return　受講生(ID一致)
    */
   public StudentDetail matchID(Integer id) throws TestException {
     Student student = repository.searchStudentID(id);
@@ -85,7 +79,7 @@ public class StudentService {
    * 受講生詳細の登録を行います。 受講生と受講生コース情報を個別に登録し、受講生コース情報には受講生情報を紐づける値とコース開始日、終了日を設定します。
    *
    * @param studentDetail 　受講生詳細
-   * @return　登録情報を付与した受講生詳細
+   * @return studentDetail　登録情報を付与した受講生詳細
    */
   @Transactional
   public StudentDetail registerStudent(StudentDetail studentDetail) {
@@ -113,7 +107,6 @@ public class StudentService {
 
   /**
    * コース情報に受講生ID、コース開始日、終了日を格納する。
-   *
    */
   private static void initStudentCourse(Integer studentID,
       StudentCourse studentCourse) {
@@ -137,8 +130,9 @@ public class StudentService {
     }
     repository.updateStudent(studentDetail.getStudent());
     studentDetail.getStudentCourseStatusList()
-        .forEach(studentCourseStatus -> {repository.updateCourse(studentCourseStatus.getStudentCourse());
-        repository.updateStatus(studentCourseStatus.getCourseStatus());
+        .forEach(studentCourseStatus -> {
+          repository.updateCourse(studentCourseStatus.getStudentCourse());
+          repository.updateStatus(studentCourseStatus.getCourseStatus());
         });
   }
 }

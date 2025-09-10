@@ -49,6 +49,16 @@ public class StudentConverter {
       studentCourseStatus.setCourseStatus(convertCourseStatus);
       studentCourseStatuses.add(studentCourseStatus);
     });
+    for (StudentCourseStatus status : studentCourseStatuses) {
+      boolean hasCourseStatus = status.getCourseStatus() != null;
+      boolean hasStudentCourse = status.getStudentCourse() != null;
+
+      if (hasCourseStatus ^ hasStudentCourse) {
+        throw new IllegalStateException(
+            "CourseStatus と StudentCourse は両方存在する必要があります。"
+        );
+      }
+    }
     return studentCourseStatuses;
   }
 }
