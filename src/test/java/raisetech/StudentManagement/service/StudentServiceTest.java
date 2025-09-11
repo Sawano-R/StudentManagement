@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import raisetech.StudentManagement.controller.converter.StudentConverter;
 import raisetech.StudentManagement.data.CourseStatus;
@@ -173,9 +174,14 @@ class StudentServiceTest {
     verify(repository, times(2)).registerCourse(any(StudentCourse.class));
     verify(repository, times(2)).registerStatus(any(CourseStatus.class));
     assertThat(actual.getStudent().getId()).isEqualTo(123);
-    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse().getIdStudents()).isEqualTo(123);
-    assertThat(actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdStudents()).isEqualTo(123);
-    assertThat(actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdCourses()).isEqualTo(234);
+    assertThat(actual.getStudentCourseStatusList().getFirst().getStudentCourse()
+        .getIdStudents()).isEqualTo(123);
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdStudents()).isEqualTo(
+        123);
+    assertThat(
+        actual.getStudentCourseStatusList().getFirst().getCourseStatus().getIdCourses()).isEqualTo(
+        234);
   }
 
   @Test
@@ -261,5 +267,109 @@ class StudentServiceTest {
     verify(repository, times(0)).updateStudent(inputStudent);
     verify(repository, times(0)).updateCourse(any(StudentCourse.class));
     verify(repository, times(0)).updateStatus(any(CourseStatus.class));
+  }
+
+  @Test
+  void 受講生詳細の複数条件での検索機能_出身地を入力した場合() {
+    Student student1 = new Student();
+    student1.setResion("テスト1");
+    StudentCourse course1 = new StudentCourse();
+    course1.setCourse("test1");
+    CourseStatus status1 = new CourseStatus();
+    status1.setStatus("仮申込");
+    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
+    StudentCourse course2 = new StudentCourse();
+    course2.setCourse("test2");
+    CourseStatus status2 = new CourseStatus();
+    status2.setStatus("本申込");
+    StudentCourseStatus scs2 = new StudentCourseStatus(course2, status2);
+    List<StudentCourseStatus> scsList1 = List.of(scs1, scs2);
+    StudentDetail studentDetail1 = new StudentDetail(student1, scsList1);
+
+    Student student2 = new Student();
+    student2.setResion("テスト1");
+    StudentCourse course3 = new StudentCourse();
+    course3.setCourse("test2");
+    CourseStatus status3 = new CourseStatus();
+    status3.setStatus("受講中");
+    StudentCourseStatus scs3 = new StudentCourseStatus(course3, status3);
+    StudentCourse course4 = new StudentCourse();
+    course4.setCourse("test3");
+    CourseStatus status4 = new CourseStatus();
+    status4.setStatus("本申込");
+    StudentCourseStatus scs4 = new StudentCourseStatus(course4, status4);
+    List<StudentCourseStatus> scsList2 = List.of(scs3, scs4);
+    StudentDetail studentDetail2 = new StudentDetail(student2, scsList2);
+    List<StudentDetail> expected = List.of(studentDetail1, studentDetail2);
+
+    List<StudentDetail> studentDetailList = createDetails();
+    StudentDetail retrieval = new StudentDetail();
+    Student student = new Student();
+    student.setResion("テスト1");
+    retrieval.setStudent(student);
+    StudentCourseStatus studentCourseStatus = new StudentCourseStatus();
+    studentCourseStatus.setStudentCourse(new StudentCourse());
+    studentCourseStatus.setCourseStatus(new CourseStatus());
+    List<StudentCourseStatus> scs = List.of(studentCourseStatus);
+    retrieval.setStudentCourseStatusList(scs);
+
+    StudentService realService = new StudentService(repository, converter);
+    StudentService spyService = Mockito.spy(realService);
+
+    Mockito.doReturn(studentDetailList).when(spyService).searchStudentDetailList();
+
+    List<StudentDetail> actual = spyService.retrievalStudent(retrieval);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  private static List<StudentDetail> createDetails() {
+    Student student1 = new Student();
+    student1.setResion("テスト1");
+    StudentCourse course1 = new StudentCourse();
+    course1.setCourse("test1");
+    CourseStatus status1 = new CourseStatus();
+    status1.setStatus("仮申込");
+    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
+    StudentCourse course2 = new StudentCourse();
+    course2.setCourse("test2");
+    CourseStatus status2 = new CourseStatus();
+    status2.setStatus("本申込");
+    StudentCourseStatus scs2 = new StudentCourseStatus(course2, status2);
+    List<StudentCourseStatus> scsList1 = List.of(scs1, scs2);
+    StudentDetail studentDetail1 = new StudentDetail(student1, scsList1);
+
+    Student student2 = new Student();
+    student2.setResion("テスト1");
+    StudentCourse course3 = new StudentCourse();
+    course3.setCourse("test2");
+    CourseStatus status3 = new CourseStatus();
+    status3.setStatus("受講中");
+    StudentCourseStatus scs3 = new StudentCourseStatus(course3, status3);
+    StudentCourse course4 = new StudentCourse();
+    course4.setCourse("test3");
+    CourseStatus status4 = new CourseStatus();
+    status4.setStatus("本申込");
+    StudentCourseStatus scs4 = new StudentCourseStatus(course4, status4);
+    List<StudentCourseStatus> scsList2 = List.of(scs3, scs4);
+    StudentDetail studentDetail2 = new StudentDetail(student2, scsList2);
+
+    Student student3 = new Student();
+    student3.setResion("テスト2");
+    StudentCourse course5 = new StudentCourse();
+    course5.setCourse("test2");
+    CourseStatus status5 = new CourseStatus();
+    status5.setStatus("受講中");
+    StudentCourseStatus scs5 = new StudentCourseStatus(course5, status5);
+    StudentCourse course6 = new StudentCourse();
+    course6.setCourse("test4");
+    CourseStatus status6 = new CourseStatus();
+    status6.setStatus("受講終了");
+    StudentCourseStatus scs6 = new StudentCourseStatus(course6, status6);
+    List<StudentCourseStatus> scsList3 = List.of(scs5, scs6);
+    StudentDetail studentDetail3 = new StudentDetail(student3, scsList3);
+
+    List<StudentDetail> studentDetails = List.of(studentDetail1, studentDetail2, studentDetail3);
+    return studentDetails;
   }
 }

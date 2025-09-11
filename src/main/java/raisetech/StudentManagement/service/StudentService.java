@@ -3,6 +3,7 @@ package raisetech.StudentManagement.service;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,7 +99,7 @@ public class StudentService {
   }
 
   /**
-   *コース状態情報に受講生ID、コースIDを格納する。
+   * コース状態情報に受講生ID、コースIDを格納する。
    */
   private static void initCourseStatus(StudentCourseStatus studentCourseStatus, Integer studentID) {
     CourseStatus courseStatus = new CourseStatus();
@@ -135,5 +136,33 @@ public class StudentService {
           repository.updateCourse(studentCourseStatus.getStudentCourse());
           repository.updateStatus(studentCourseStatus.getCourseStatus());
         });
+  }
+
+  public List<StudentDetail> retrievalStudent(StudentDetail studentDetail) {
+    List<StudentDetail> studentDetails = searchStudentDetailList();
+    String retrievalResion = studentDetail.getStudent().getResion();
+    String retrievalCourse = studentDetail.getStudentCourseStatusList().getFirst()
+        .getStudentCourse().getCourse();
+    String retrievalStatus = studentDetail.getStudentCourseStatusList().getFirst().getCourseStatus()
+        .getStatus();
+    if (retrievalResion == null && retrievalCourse == null && retrievalStatus == null) {
+      throw new TestException("検索条件を入力してください。");
+    }
+    if (retrievalResion != null) {
+      studentDetails = studentDetails.stream()
+          .filter(sd -> sd.getStudent().getResion().equals(retrievalResion))
+          .toList();
+    }
+    if (retrievalCourse != null) {
+      studentDetails = studentDetails.stream()
+          .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
+              scs.getStudentCourse().getCourse(), retrievalCourse))).toList();
+    }
+    if (retrievalStatus != null) {
+      studentDetails = studentDetails.stream()
+          .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
+              scs.getCourseStatus().getStatus(), retrievalStatus))).toList();
+    }
+    return studentDetails;
   }
 }

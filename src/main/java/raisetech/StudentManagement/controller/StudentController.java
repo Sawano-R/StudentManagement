@@ -65,6 +65,15 @@ public class StudentController {
     return service.matchID(id);
   }
 
+
+  @Operation(summary = "受講生条件検索", description = "コース名、受講状態、出身地で受講生一覧をソートします。入力するstudentDetailには上記3つのうち、1つ以上の情報を入れてください。")
+  @PostMapping("retrievalStudent")
+  public ResponseEntity<List<StudentDetail>> retrievalStudent(
+      @RequestBody StudentDetail studentDetail) {
+    List<StudentDetail> responseStudentDetailList = service.retrievalStudent(studentDetail);
+    return ResponseEntity.ok(responseStudentDetailList);
+  }
+
   @Operation(summary = "受講生更新", description = "受講生詳細を更新します")
   @PutMapping("/updateResult")
   public ResponseEntity<String> updateStudent(
