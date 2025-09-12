@@ -271,46 +271,14 @@ class StudentServiceTest {
 
   @Test
   void 受講生詳細の複数条件での検索機能_出身地を入力した場合() {
-    Student student1 = new Student();
-    student1.setResion("テスト1");
-    StudentCourse course1 = new StudentCourse();
-    course1.setCourse("test1");
-    CourseStatus status1 = new CourseStatus();
-    status1.setStatus("仮申込");
-    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
-    StudentCourse course2 = new StudentCourse();
-    course2.setCourse("test2");
-    CourseStatus status2 = new CourseStatus();
-    status2.setStatus("本申込");
-    StudentCourseStatus scs2 = new StudentCourseStatus(course2, status2);
-    List<StudentCourseStatus> scsList1 = List.of(scs1, scs2);
-    StudentDetail studentDetail1 = new StudentDetail(student1, scsList1);
-
-    Student student2 = new Student();
-    student2.setResion("テスト1");
-    StudentCourse course3 = new StudentCourse();
-    course3.setCourse("test2");
-    CourseStatus status3 = new CourseStatus();
-    status3.setStatus("受講中");
-    StudentCourseStatus scs3 = new StudentCourseStatus(course3, status3);
-    StudentCourse course4 = new StudentCourse();
-    course4.setCourse("test3");
-    CourseStatus status4 = new CourseStatus();
-    status4.setStatus("本申込");
-    StudentCourseStatus scs4 = new StudentCourseStatus(course4, status4);
-    List<StudentCourseStatus> scsList2 = List.of(scs3, scs4);
-    StudentDetail studentDetail2 = new StudentDetail(student2, scsList2);
-    List<StudentDetail> expected = List.of(studentDetail1, studentDetail2);
-
     List<StudentDetail> studentDetailList = createDetails();
+    //テストケースの条件とcreateDetails()の中身に応じて変更すること
+    List<StudentDetail> expected = List.of(studentDetailList.get(0), studentDetailList.get(1));
     StudentDetail retrieval = new StudentDetail();
     Student student = new Student();
     student.setResion("テスト1");
     retrieval.setStudent(student);
-    StudentCourseStatus studentCourseStatus = new StudentCourseStatus();
-    studentCourseStatus.setStudentCourse(new StudentCourse());
-    studentCourseStatus.setCourseStatus(new CourseStatus());
-    List<StudentCourseStatus> scs = List.of(studentCourseStatus);
+    List<StudentCourseStatus> scs = new ArrayList<>();
     retrieval.setStudentCourseStatusList(scs);
 
     StudentService realService = new StudentService(repository, converter);
@@ -321,6 +289,129 @@ class StudentServiceTest {
     List<StudentDetail> actual = spyService.retrievalStudent(retrieval);
 
     assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void 受講生詳細の複数条件での検索機能_コースを入力した場合() {
+    List<StudentDetail> studentDetailList = createDetails();
+    //テストケースの条件とcreateDetails()の中身に応じて変更すること
+    Student student1 = new Student();
+    student1.setResion("テスト1");
+    StudentCourse course1 = new StudentCourse();
+    course1.setCourse("test1");
+    CourseStatus status1 = new CourseStatus();
+    status1.setStatus("仮申込");
+    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
+    List<StudentCourseStatus> studentCourseStatusList1 = List.of(scs1);
+    StudentDetail studentDetail1 = new StudentDetail(student1, studentCourseStatusList1);
+    List<StudentDetail> expected = List.of(studentDetail1);
+
+    StudentDetail retrieval = new StudentDetail();
+    StudentCourseStatus scs = new StudentCourseStatus();
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setCourse("test1");
+    scs.setStudentCourse(studentCourse);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(scs);
+    retrieval.setStudentCourseStatusList(studentCourseStatusList);
+
+    StudentService realService = new StudentService(repository, converter);
+    StudentService spyService = Mockito.spy(realService);
+
+    Mockito.doReturn(studentDetailList).when(spyService).searchStudentDetailList();
+
+    List<StudentDetail> actual = spyService.retrievalStudent(retrieval);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void 受講生詳細の複数条件での検索機能_コース状態を入力した場合() {
+    List<StudentDetail> studentDetailList = createDetails();
+    //テストケースの条件とcreateDetails()の中身に応じて変更すること
+    Student student1 = new Student();
+    student1.setResion("テスト2");
+    StudentCourse course1 = new StudentCourse();
+    course1.setCourse("test4");
+    CourseStatus status1 = new CourseStatus();
+    status1.setStatus("受講終了");
+    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
+    List<StudentCourseStatus> studentCourseStatusList1 = List.of(scs1);
+    StudentDetail studentDetail1 = new StudentDetail(student1, studentCourseStatusList1);
+    List<StudentDetail> expected = List.of(studentDetail1);
+
+    StudentDetail retrieval = new StudentDetail();
+    StudentCourseStatus scs = new StudentCourseStatus();
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("受講終了");
+    scs.setCourseStatus(courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(scs);
+    retrieval.setStudentCourseStatusList(studentCourseStatusList);
+
+    StudentService realService = new StudentService(repository, converter);
+    StudentService spyService = Mockito.spy(realService);
+
+    Mockito.doReturn(studentDetailList).when(spyService).searchStudentDetailList();
+
+    List<StudentDetail> actual = spyService.retrievalStudent(retrieval);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void 受講生詳細の複数条件での検索機能_全条件を入力した場合() {
+    List<StudentDetail> studentDetailList = createDetails();
+    //テストケースの条件とcreateDetails()の中身に応じて変更すること
+    Student student1 = new Student();
+    student1.setResion("テスト1");
+    StudentCourse course1 = new StudentCourse();
+    course1.setCourse("test2");
+    CourseStatus status1 = new CourseStatus();
+    status1.setStatus("受講中");
+    StudentCourseStatus scs1 = new StudentCourseStatus(course1, status1);
+    List<StudentCourseStatus> studentCourseStatusList1 = List.of(scs1);
+    StudentDetail studentDetail1 = new StudentDetail(student1, studentCourseStatusList1);
+    List<StudentDetail> expected = List.of(studentDetail1);
+
+    StudentDetail retrieval = new StudentDetail();
+    Student student = new Student();
+    student.setResion("テスト1");
+    retrieval.setStudent(student);
+    StudentCourseStatus scs = new StudentCourseStatus();
+    StudentCourse studentCourse = new StudentCourse();
+    studentCourse.setCourse("test2");
+    scs.setStudentCourse(studentCourse);
+    CourseStatus courseStatus = new CourseStatus();
+    courseStatus.setStatus("受講中");
+    scs.setCourseStatus(courseStatus);
+    List<StudentCourseStatus> studentCourseStatusList = List.of(scs);
+    retrieval.setStudentCourseStatusList(studentCourseStatusList);
+
+    StudentService realService = new StudentService(repository, converter);
+    StudentService spyService = Mockito.spy(realService);
+
+    Mockito.doReturn(studentDetailList).when(spyService).searchStudentDetailList();
+
+    List<StudentDetail> actual = spyService.retrievalStudent(retrieval);
+
+    assertThat(actual).containsExactlyInAnyOrderElementsOf(expected);
+  }
+
+  @Test
+  void 受講生詳細の複数条件での検索機能_条件を入力しないとエラーを返すこと() {
+    List<StudentDetail> studentDetailList = createDetails();
+    //テストケースの条件とcreateDetails()の中身に応じて変更すること
+
+    StudentDetail retrieval = new StudentDetail();
+
+    StudentService realService = new StudentService(repository, converter);
+    StudentService spyService = Mockito.spy(realService);
+
+    Mockito.doReturn(studentDetailList).when(spyService).searchStudentDetailList();
+
+    assertThatThrownBy(() -> spyService.retrievalStudent(retrieval))
+        .isInstanceOf(TestException.class)
+        .hasMessageContaining("検索条件を入力してください。");
+
   }
 
   private static List<StudentDetail> createDetails() {

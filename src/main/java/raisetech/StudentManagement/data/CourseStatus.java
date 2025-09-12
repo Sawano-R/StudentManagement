@@ -6,8 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import raisetech.StudentManagement.data.StudentValidationGroup.UpdateGroup;
 
-@Data
+
 @Schema(description = "コース申し込み状況")
+@Data
 public class CourseStatus {
 
   @NotNull(groups = UpdateGroup.class, message = "更新時はidが必須です。")

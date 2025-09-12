@@ -140,11 +140,25 @@ public class StudentService {
 
   public List<StudentDetail> retrievalStudent(StudentDetail studentDetail) {
     List<StudentDetail> studentDetails = searchStudentDetailList();
-    String retrievalResion = studentDetail.getStudent().getResion();
-    String retrievalCourse = studentDetail.getStudentCourseStatusList().getFirst()
-        .getStudentCourse().getCourse();
-    String retrievalStatus = studentDetail.getStudentCourseStatusList().getFirst().getCourseStatus()
-        .getStatus();
+    String retrievalResion;
+    if (studentDetail.getStudent() != null) {
+      retrievalResion = studentDetail.getStudent().getResion();
+    } else {
+      retrievalResion = null;
+    }
+    String retrievalCourse;
+    String retrievalStatus;
+    if (studentDetail.getStudentCourseStatusList() != null
+        && !studentDetail.getStudentCourseStatusList().isEmpty()) {
+      StudentCourseStatus first = studentDetail.getStudentCourseStatusList().getFirst();
+      retrievalCourse =
+          (first.getStudentCourse() != null) ? first.getStudentCourse().getCourse() : null;
+      retrievalStatus =
+          (first.getCourseStatus() != null) ? first.getCourseStatus().getStatus() : null;
+    } else {
+      retrievalCourse = null;
+      retrievalStatus = null;
+    }
     if (retrievalResion == null && retrievalCourse == null && retrievalStatus == null) {
       throw new TestException("検索条件を入力してください。");
     }
@@ -156,12 +170,25 @@ public class StudentService {
     if (retrievalCourse != null) {
       studentDetails = studentDetails.stream()
           .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
-              scs.getStudentCourse().getCourse(), retrievalCourse))).toList();
+              scs.getStudentCourse().getCourse(), retrievalCourse)))
+          .map(sd -> {
+            List<StudentCourseStatus> filteredList = sd.getStudentCourseStatusList().stream()
+                .filter(scs -> Objects.equals(scs.getStudentCourse().getCourse(), retrievalCourse))
+                .toList();
+            return new StudentDetail(sd.getStudent(), filteredList);
+          })
+          .toList();
     }
     if (retrievalStatus != null) {
       studentDetails = studentDetails.stream()
           .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
-              scs.getCourseStatus().getStatus(), retrievalStatus))).toList();
+              scs.getCourseStatus().getStatus(), retrievalStatus)))
+          .map(sd -> {
+            List<StudentCourseStatus> filteredList = sd.getStudentCourseStatusList().stream()
+                .filter(scs -> Objects.equals(scs.getCourseStatus().getStatus(), retrievalStatus))
+                .toList();
+            return new StudentDetail(sd.getStudent(), filteredList);
+          }).toList();
     }
     return studentDetails;
   }
