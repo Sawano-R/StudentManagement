@@ -4,6 +4,9 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -138,28 +141,18 @@ public class StudentService {
         });
   }
 
+
   public List<StudentDetail> retrievalStudent(StudentDetail studentDetail) {
     List<StudentDetail> studentDetails = searchStudentDetailList();
-    String retrievalResion;
-    if (studentDetail.getStudent() != null) {
-      retrievalResion = studentDetail.getStudent().getResion();
-    } else {
-      retrievalResion = null;
-    }
-    String retrievalCourse;
-    String retrievalStatus;
-    if (studentDetail.getStudentCourseStatusList() != null
-        && !studentDetail.getStudentCourseStatusList().isEmpty()) {
-      StudentCourseStatus first = studentDetail.getStudentCourseStatusList().getFirst();
-      retrievalCourse =
-          (first.getStudentCourse() != null) ? first.getStudentCourse().getCourse() : null;
-      retrievalStatus =
-          (first.getCourseStatus() != null) ? first.getCourseStatus().getStatus() : null;
-    } else {
-      retrievalCourse = null;
-      retrievalStatus = null;
-    }
-    if (retrievalResion == null && retrievalCourse == null && retrievalStatus == null) {
+    String retrievalResion =
+        (Objects.nonNull(studentDetail.getStudent())) ? studentDetail.getStudent().getResion()
+            : null;
+
+    String retrievalCourse = getCourse(studentDetail);
+
+    String retrievalStatus = getStatus(studentDetail);
+
+    if (Stream.of(retrievalResion, retrievalCourse, retrievalStatus).allMatch(Objects::isNull)) {
       throw new TestException("検索条件を入力してください。");
     }
     if (retrievalResion != null) {
@@ -168,28 +161,52 @@ public class StudentService {
           .toList();
     }
     if (retrievalCourse != null) {
-      studentDetails = studentDetails.stream()
-          .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
-              scs.getStudentCourse().getCourse(), retrievalCourse)))
-          .map(sd -> {
-            List<StudentCourseStatus> filteredList = sd.getStudentCourseStatusList().stream()
-                .filter(scs -> Objects.equals(scs.getStudentCourse().getCourse(), retrievalCourse))
-                .toList();
-            return new StudentDetail(sd.getStudent(), filteredList);
-          })
-          .toList();
+      studentDetails = searchBy(studentDetails, retrievalCourse,
+          scs -> scs.getStudentCourse().getCourse());
     }
     if (retrievalStatus != null) {
-      studentDetails = studentDetails.stream()
-          .filter(sd -> sd.getStudentCourseStatusList().stream().anyMatch(scs -> Objects.equals(
-              scs.getCourseStatus().getStatus(), retrievalStatus)))
-          .map(sd -> {
-            List<StudentCourseStatus> filteredList = sd.getStudentCourseStatusList().stream()
-                .filter(scs -> Objects.equals(scs.getCourseStatus().getStatus(), retrievalStatus))
-                .toList();
-            return new StudentDetail(sd.getStudent(), filteredList);
-          }).toList();
+      studentDetails = searchBy(studentDetails, retrievalStatus,
+          scs -> scs.getCourseStatus().getStatus());
     }
     return studentDetails;
   }
+
+  private static String getStatus(StudentDetail studentDetail) {
+    String retrievalStatus = Optional.ofNullable(studentDetail.getStudentCourseStatusList())
+        .filter(list -> !list.isEmpty())
+        .map(list -> list.getFirst().getCourseStatus())
+        .map(cs -> cs.getStatus())
+        .orElse(null);
+    return retrievalStatus;
+  }
+
+  private static String getCourse(StudentDetail studentDetail) {
+    String retrievalCourse = Optional.ofNullable(studentDetail.getStudentCourseStatusList())
+        .filter(list -> !list.isEmpty())
+        .map(list -> list.getFirst().getStudentCourse())
+        .map(cs -> cs.getCourse())
+        .orElse(null);
+    return retrievalCourse;
+  }
+
+  private static List<StudentDetail> searchBy(
+      List<StudentDetail> studentDetails,
+      String retrievalValue,
+      Function<StudentCourseStatus, String> keyExtractor) {
+
+    return studentDetails.stream()
+        // まずは StudentDetail レベルでフィルタ
+        .filter(sd -> sd.getStudentCourseStatusList().stream()
+            .anyMatch(scs -> Objects.equals(keyExtractor.apply(scs), retrievalValue)))
+        // StudentCourseStatus のリストを絞り込み、新しい StudentDetail を生成
+        .map(sd -> {
+          List<StudentCourseStatus> filteredList = sd.getStudentCourseStatusList().stream()
+              .filter(scs -> Objects.equals(keyExtractor.apply(scs), retrievalValue))
+              .toList();
+          return new StudentDetail(sd.getStudent(), filteredList);
+        })
+        .toList();
+  }
 }
+//user-uBGUol79T60Gnv6utuIesYlJ
+//l2501882087as@gmail.com
