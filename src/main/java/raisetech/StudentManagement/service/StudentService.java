@@ -141,7 +141,9 @@ public class StudentService {
         });
   }
 
-
+  /**
+   * 受講生詳細の出身地、コース名、コース状態での検索を行う。 １つも条件を入れない場合、テキストエラーを返す。
+   */
   public List<StudentDetail> retrievalStudent(StudentDetail studentDetail) {
     List<StudentDetail> studentDetails = searchStudentDetailList();
     String retrievalResion =
@@ -171,6 +173,9 @@ public class StudentService {
     return studentDetails;
   }
 
+  /**
+   * 検索条件として入力した受講生詳細からコース状態を取り出す。
+   */
   private static String getStatus(StudentDetail studentDetail) {
     String retrievalStatus = Optional.ofNullable(studentDetail.getStudentCourseStatusList())
         .filter(list -> !list.isEmpty())
@@ -180,6 +185,9 @@ public class StudentService {
     return retrievalStatus;
   }
 
+  /**
+   * 検索条件として入力した受講生詳細からコース名を取り出す。
+   */
   private static String getCourse(StudentDetail studentDetail) {
     String retrievalCourse = Optional.ofNullable(studentDetail.getStudentCourseStatusList())
         .filter(list -> !list.isEmpty())
@@ -189,6 +197,11 @@ public class StudentService {
     return retrievalCourse;
   }
 
+  /**
+   * コース名、コース状態についての検索機能。
+   *
+   * @param keyExtractor 受講生コース状態からコース名かコース状態をgetしたものを入れる。
+   */
   private static List<StudentDetail> searchBy(
       List<StudentDetail> studentDetails,
       String retrievalValue,
